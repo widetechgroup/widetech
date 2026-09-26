@@ -254,6 +254,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_status: string
           address: string | null
           avatar_url: string | null
           city: string | null
@@ -266,14 +267,18 @@ export type Database = {
           is_suspended: boolean
           is_verified: boolean
           job_title: string | null
+          last_sign_in_at: string | null
           phone: string | null
           preferred_currency: string
+          status_reason: string | null
           suspended_at: string | null
           updated_at: string | null
+          username: string | null
           verified_at: string | null
           whatsapp: string | null
         }
         Insert: {
+          account_status?: string
           address?: string | null
           avatar_url?: string | null
           city?: string | null
@@ -286,14 +291,18 @@ export type Database = {
           is_suspended?: boolean
           is_verified?: boolean
           job_title?: string | null
+          last_sign_in_at?: string | null
           phone?: string | null
           preferred_currency?: string
+          status_reason?: string | null
           suspended_at?: string | null
           updated_at?: string | null
+          username?: string | null
           verified_at?: string | null
           whatsapp?: string | null
         }
         Update: {
+          account_status?: string
           address?: string | null
           avatar_url?: string | null
           city?: string | null
@@ -306,10 +315,13 @@ export type Database = {
           is_suspended?: boolean
           is_verified?: boolean
           job_title?: string | null
+          last_sign_in_at?: string | null
           phone?: string | null
           preferred_currency?: string
+          status_reason?: string | null
           suspended_at?: string | null
           updated_at?: string | null
+          username?: string | null
           verified_at?: string | null
           whatsapp?: string | null
         }

@@ -13,6 +13,7 @@ import { ServicesManager } from "@/components/ServicesManager";
 import { Overview } from "@/components/Overview";
 import { UsersManager } from "@/components/UsersManager";
 import { MediaManager } from "@/components/MediaManager";
+import { ControlCenter } from "@/components/ControlCenter";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -23,11 +24,11 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
       { property: "og:description", content: "WideTech staff and technician workspace." },
     ],
   }),
-  validateSearch: (search) => z.object({ tab: z.string().optional() }).parse(search),
+  validateSearch: (search) => z.object({ tab: z.string().optional(), create: z.string().optional() }).parse(search),
   component: DashboardPage,
 });
 
-export type DashTab = "overview" | "dispatch" | "consult" | "projects" | "activity" | "settings" | "team" | "jobs" | "services" | "media";
+export type DashTab = "overview" | "dispatch" | "consult" | "projects" | "activity" | "settings" | "team" | "jobs" | "services" | "media" | "control";
 
 const STATUSES = ["pending", "reviewing", "quoted", "in_progress", "completed", "cancelled"] as const;
 type Status = (typeof STATUSES)[number];
@@ -42,7 +43,7 @@ function DashboardPage() {
   const search = Route.useSearch();
   const navigate = useNavigate();
   const tab = (search.tab ?? "overview") as DashTab;
-  const setTab = (t: DashTab) => navigate({ to: "/dashboard", search: { tab: t } });
+  const setTab = (t: DashTab, extra?: Record<string, string>) => navigate({ to: "/dashboard", search: { tab: t, ...extra } });
 
   if (loading) return <p className="p-8 text-sm text-muted-foreground">Loading…</p>;
   if (!isStaff && !isTechnician)
@@ -57,7 +58,7 @@ function DashboardPage() {
   const tabs = [
     ...(isStaff ? [{ id: "overview", label: "Overview" }, { id: "dispatch", label: "Dispatch" }, { id: "consult", label: "Consultations" }, { id: "projects", label: "Projects" }, { id: "activity", label: "Activity" }] : []),
     ...(isTechnician ? [{ id: "jobs", label: "My jobs" }] : []),
-    ...(isSuperAdmin ? [{ id: "services", label: "Services & prices" }, { id: "team", label: "Users" }, { id: "media", label: "Media" }, { id: "settings", label: "Company settings" }] : []),
+    ...(isSuperAdmin ? [{ id: "control", label: "Control Center" }, { id: "services", label: "Services & prices" }, { id: "team", label: "Users" }, { id: "media", label: "Media" }, { id: "settings", label: "Company settings" }] : []),
   ] as { id: typeof tab; label: string }[];
   const active = tabs.some((t) => t.id === tab) ? tab : tabs[0]!.id;
 
@@ -84,7 +85,8 @@ function DashboardPage() {
         {active === "consult" && <Consultations />}
         {active === "projects" && <Projects />}
         {active === "jobs" && <Dispatch technicianOnly />}
-        {active === "team" && <UsersManager />}
+        {active === "team" && <UsersManager startCreate={search.create === "1"} />}
+        {active === "control" && <ControlCenter onNavigate={setTab} />}
         {active === "activity" && <Activity />}
         {active === "settings" && <Settings />}
         {active === "services" && <ServicesManager />}
