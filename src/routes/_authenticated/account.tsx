@@ -172,16 +172,16 @@ function AvatarPicker({ userId, name, url, onChange }: { userId: string | undefi
   async function upload(file: File) {
     if (!userId) return;
     if (!file.type.startsWith("image/")) { toast.error("Please choose an image"); return; }
-    if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5MB");
+    if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5MB"); return; }
     setBusy(true);
     const path = `avatars/${userId}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
     const up = await supabase.storage.from("media").upload(path, file, { contentType: file.type });
-    if (up.error) { setBusy(false); { toast.error(up.error.message); }
+    if (up.error) { setBusy(false); toast.error(up.error.message); return; }
     const signed = await supabase.storage.from("media").createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
-    if (signed.error) { setBusy(false); { toast.error(signed.error.message); }
+    if (signed.error) { setBusy(false); toast.error(signed.error.message); return; }
     const { error } = await supabase.from("profiles").update({ avatar_url: signed.data.signedUrl }).eq("id", userId);
     setBusy(false);
-    if (error) { toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Profile picture updated");
     onChange();
   }
@@ -193,7 +193,7 @@ function AvatarPicker({ userId, name, url, onChange }: { userId: string | undefi
     if (files?.length) await supabase.storage.from("media").remove(files.map((f) => `avatars/${userId}/${f.name}`));
     const { error } = await supabase.from("profiles").update({ avatar_url: null }).eq("id", userId);
     setBusy(false);
-    if (error) { toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Profile picture removed");
     onChange();
   }
