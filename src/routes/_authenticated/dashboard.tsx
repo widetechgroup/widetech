@@ -409,7 +409,7 @@ function Activity() {
     <div className="glass divide-y divide-border rounded-2xl">
       {logs.data?.length === 0 && <p className="p-5 text-sm text-muted-foreground">No activity yet.</p>}
       {logs.data?.map((l) => {
-        const d = (l.details ?? {}) as Record<string, string | null>;
+        const d = (l.details ?? {}) as { role?: string; status?: string; old_status?: string };
         const extra = d.role ? ` (${d.role})` : d.old_status && d.status && d.old_status !== d.status ? `: ${d.old_status} → ${d.status}` : "";
         return (
           <div key={l.id} className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 p-4 text-sm">
