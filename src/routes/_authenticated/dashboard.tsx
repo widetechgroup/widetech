@@ -383,7 +383,7 @@ function Activity() {
           <div key={l.id} className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 p-4 text-sm">
             <p className="min-w-0">
               <span className="font-semibold">{who(l.actor_id)}</span>{" "}
-              <span className="text-muted-foreground">{l.action}d {label[l.table_name] ?? l.table_name}{extra}</span>
+              <span className="text-muted-foreground">{({ insert: "added", update: "updated", delete: "removed" } as Record<string, string>)[l.action] ?? l.action} {label[l.table_name] ?? l.table_name}{extra}</span>
             </p>
             <span className="text-xs text-muted-foreground">{new Date(l.created_at).toLocaleString()}</span>
           </div>
