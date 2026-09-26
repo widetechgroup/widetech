@@ -122,7 +122,7 @@ function Dispatch({ technicianOnly = false }: { technicianOnly?: boolean }) {
       .from("service_requests")
       .update({ ...patch, updated_at: new Date().toISOString() })
       .eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Updated");
     qc.invalidateQueries({ queryKey: ["dispatch"] });
   };
@@ -224,7 +224,7 @@ function Consultations() {
 
   const update = async (id: string, patch: { status?: string; meeting_link?: string }) => {
     const { error } = await supabase.from("consultations").update(patch).eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Updated");
     qc.invalidateQueries({ queryKey: ["staff-consultations"] });
   };
@@ -271,7 +271,7 @@ function Team() {
     const res = has
       ? await supabase.from("user_roles").delete().eq("user_id", userId).eq("role", role)
       : await supabase.from("user_roles").insert({ user_id: userId, role });
-    if (res.error) return toast.error(res.error.message);
+    if (res.error) { toast.error(res.error.message); return; }
     qc.invalidateQueries({ queryKey: ["staff-profiles"] });
   };
 
