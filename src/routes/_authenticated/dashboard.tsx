@@ -8,6 +8,7 @@ import { useRoles, type AppRole } from "@/hooks/useRoles";
 import { cn } from "@/lib/utils";
 import { companyQuery } from "@/lib/company";
 import { ServicesManager } from "@/components/ServicesManager";
+import { Overview } from "@/components/Overview";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -31,7 +32,7 @@ const selectCls =
 
 function DashboardPage() {
   const { isStaff, isSuperAdmin, isTechnician, loading } = useRoles();
-  const [tab, setTab] = useState<"dispatch" | "consult" | "projects" | "activity" | "settings" | "team" | "jobs" | "services">("dispatch");
+  const [tab, setTab] = useState<"overview" | "dispatch" | "consult" | "projects" | "activity" | "settings" | "team" | "jobs" | "services">("overview");
 
   if (loading) return <p className="p-8 text-sm text-muted-foreground">Loading…</p>;
   if (!isStaff && !isTechnician)
@@ -44,7 +45,7 @@ function DashboardPage() {
     );
 
   const tabs = [
-    ...(isStaff ? [{ id: "dispatch", label: "Dispatch" }, { id: "consult", label: "Consultations" }, { id: "projects", label: "Projects" }, { id: "activity", label: "Activity" }] : []),
+    ...(isStaff ? [{ id: "overview", label: "Overview" }, { id: "dispatch", label: "Dispatch" }, { id: "consult", label: "Consultations" }, { id: "projects", label: "Projects" }, { id: "activity", label: "Activity" }] : []),
     ...(isTechnician ? [{ id: "jobs", label: "My jobs" }] : []),
     ...(isSuperAdmin ? [{ id: "services", label: "Services & prices" }, { id: "team", label: "Team & roles" }, { id: "settings", label: "Company settings" }] : []),
   ] as { id: typeof tab; label: string }[];
@@ -68,6 +69,7 @@ function DashboardPage() {
         ))}
       </div>
       <div className="mt-6">
+        {active === "overview" && <Overview />}
         {active === "dispatch" && <Dispatch />}
         {active === "consult" && <Consultations />}
         {active === "projects" && <Projects />}

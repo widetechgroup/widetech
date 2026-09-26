@@ -59,7 +59,7 @@ export function Overview() {
     { label: "Service requests", value: data.requests.length },
     { label: "Open requests", value: data.requests.filter((r) => !["completed", "cancelled"].includes(r.status)).length },
     { label: "Quotes sent", value: data.quotes.length },
-    { label: "Accepted value", value: `$${revenue.toLocaleString()}`, sub: company.tzs(revenue) },
+    { label: "Accepted value", value: `$${revenue.toLocaleString()}`, sub: company.toTzs(revenue) != null ? `TZS ${company.toTzs(revenue)!.toLocaleString()}` : undefined },
     { label: "Active projects", value: data.projects.filter((p) => p.status === "active").length },
     { label: "Open support chats", value: data.tickets.filter((t) => t.status === "open").length },
     { label: "Consultations", value: data.consults.length },
