@@ -71,7 +71,7 @@ function DashboardPage() {
         ))}
       </div>
       <div className="mt-6">
-        {active === "overview" && <Overview />}
+        {active === "overview" && <Overview onNavigate={setTab} />}
         {active === "dispatch" && <Dispatch />}
         {active === "consult" && <Consultations />}
         {active === "projects" && <Projects />}
