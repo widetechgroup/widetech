@@ -44,6 +44,7 @@ function useNavGroups(): NavGroup[] {
     groups.push({
       title: "Administration",
       items: [
+        { to: "/dashboard", tab: "control", label: "Control Center", icon: ShieldCheck },
         { to: "/dashboard", tab: "services", label: "Services & prices", icon: Tags },
         { to: "/dashboard", tab: "team", label: "Users & roles", icon: Users },
         { to: "/dashboard", tab: "media", label: "Media", icon: ImageIcon },
