@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useRoles, type AppRole } from "@/hooks/useRoles";
 import { cn } from "@/lib/utils";
+import { ServicesManager } from "@/components/ServicesManager";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -29,7 +30,7 @@ const selectCls =
 
 function DashboardPage() {
   const { isStaff, isSuperAdmin, isTechnician, loading } = useRoles();
-  const [tab, setTab] = useState<"dispatch" | "consult" | "projects" | "activity" | "settings" | "team" | "jobs">("dispatch");
+  const [tab, setTab] = useState<"dispatch" | "consult" | "projects" | "activity" | "settings" | "team" | "jobs" | "services">("dispatch");
 
   if (loading) return <p className="p-8 text-sm text-muted-foreground">Loading…</p>;
   if (!isStaff && !isTechnician)
@@ -44,7 +45,7 @@ function DashboardPage() {
   const tabs = [
     ...(isStaff ? [{ id: "dispatch", label: "Dispatch" }, { id: "consult", label: "Consultations" }, { id: "projects", label: "Projects" }, { id: "activity", label: "Activity" }] : []),
     ...(isTechnician ? [{ id: "jobs", label: "My jobs" }] : []),
-    ...(isSuperAdmin ? [{ id: "team", label: "Team & roles" }, { id: "settings", label: "Company settings" }] : []),
+    ...(isSuperAdmin ? [{ id: "services", label: "Services & prices" }, { id: "team", label: "Team & roles" }, { id: "settings", label: "Company settings" }] : []),
   ] as { id: typeof tab; label: string }[];
   const active = tabs.some((t) => t.id === tab) ? tab : tabs[0]!.id;
 
@@ -73,6 +74,7 @@ function DashboardPage() {
         {active === "team" && <Team />}
         {active === "activity" && <Activity />}
         {active === "settings" && <Settings />}
+        {active === "services" && <ServicesManager />}
       </div>
     </div>
   );
