@@ -50,6 +50,7 @@ export type Database = {
           company_name: string
           email: string | null
           id: number
+          logo_url: string | null
           phone: string | null
           tagline: string
           updated_at: string
@@ -61,6 +62,7 @@ export type Database = {
           company_name?: string
           email?: string | null
           id?: number
+          logo_url?: string | null
           phone?: string | null
           tagline?: string
           updated_at?: string
@@ -72,6 +74,7 @@ export type Database = {
           company_name?: string
           email?: string | null
           id?: number
+          logo_url?: string | null
           phone?: string | null
           tagline?: string
           updated_at?: string
@@ -123,6 +126,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      media_assets: {
+        Row: {
+          created_at: string
+          folder: string
+          id: string
+          mime_type: string | null
+          name: string
+          path: string
+          size_bytes: number | null
+          uploaded_by: string | null
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          folder?: string
+          id?: string
+          mime_type?: string | null
+          name: string
+          path: string
+          size_bytes?: number | null
+          uploaded_by?: string | null
+          url: string
+        }
+        Update: {
+          created_at?: string
+          folder?: string
+          id?: string
+          mime_type?: string | null
+          name?: string
+          path?: string
+          size_bytes?: number | null
+          uploaded_by?: string | null
+          url?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -362,6 +401,7 @@ export type Database = {
           features: Json | null
           full_description: string
           id: string
+          image_url: string | null
           is_active: boolean | null
           price_tzs: number | null
           short_description: string
@@ -378,6 +418,7 @@ export type Database = {
           features?: Json | null
           full_description: string
           id?: string
+          image_url?: string | null
           is_active?: boolean | null
           price_tzs?: number | null
           short_description: string
@@ -394,6 +435,7 @@ export type Database = {
           features?: Json | null
           full_description?: string
           id?: string
+          image_url?: string | null
           is_active?: boolean | null
           price_tzs?: number | null
           short_description?: string

@@ -10,6 +10,7 @@ import { companyQuery } from "@/lib/company";
 import { ServicesManager } from "@/components/ServicesManager";
 import { Overview } from "@/components/Overview";
 import { UsersManager } from "@/components/UsersManager";
+import { MediaManager } from "@/components/MediaManager";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -33,7 +34,7 @@ const selectCls =
 
 function DashboardPage() {
   const { isStaff, isSuperAdmin, isTechnician, loading } = useRoles();
-  const [tab, setTab] = useState<"overview" | "dispatch" | "consult" | "projects" | "activity" | "settings" | "team" | "jobs" | "services">("overview");
+  const [tab, setTab] = useState<"overview" | "dispatch" | "consult" | "projects" | "activity" | "settings" | "team" | "jobs" | "services" | "media">("overview");
 
   if (loading) return <p className="p-8 text-sm text-muted-foreground">Loading…</p>;
   if (!isStaff && !isTechnician)
@@ -48,7 +49,7 @@ function DashboardPage() {
   const tabs = [
     ...(isStaff ? [{ id: "overview", label: "Overview" }, { id: "dispatch", label: "Dispatch" }, { id: "consult", label: "Consultations" }, { id: "projects", label: "Projects" }, { id: "activity", label: "Activity" }] : []),
     ...(isTechnician ? [{ id: "jobs", label: "My jobs" }] : []),
-    ...(isSuperAdmin ? [{ id: "services", label: "Services & prices" }, { id: "team", label: "Users" }, { id: "settings", label: "Company settings" }] : []),
+    ...(isSuperAdmin ? [{ id: "services", label: "Services & prices" }, { id: "team", label: "Users" }, { id: "media", label: "Media" }, { id: "settings", label: "Company settings" }] : []),
   ] as { id: typeof tab; label: string }[];
   const active = tabs.some((t) => t.id === tab) ? tab : tabs[0]!.id;
 
@@ -79,6 +80,7 @@ function DashboardPage() {
         {active === "activity" && <Activity />}
         {active === "settings" && <Settings />}
         {active === "services" && <ServicesManager />}
+        {active === "media" && <MediaManager />}
       </div>
     </div>
   );

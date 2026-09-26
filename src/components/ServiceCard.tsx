@@ -12,6 +12,7 @@ export function ServiceCard({
   const { toTzs } = useCompany();
   return (
     <article className="glass-interactive flex flex-col rounded-2xl p-5">
+      {service.image_url && <img src={service.image_url} alt={service.title} loading="lazy" className="-mx-5 -mt-5 mb-4 aspect-video w-[calc(100%+2.5rem)] max-w-none rounded-t-2xl object-cover" />}
       <p className="text-[11px] font-semibold uppercase tracking-wider text-accent">
         {service.billing_type}
       </p>

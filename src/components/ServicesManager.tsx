@@ -9,7 +9,7 @@ const inputCls = "min-h-[40px] rounded-lg border border-border bg-background/60 
 
 type Row = {
   id: string; title: string; slug: string; short_description: string; full_description: string;
-  starting_price: number; billing_type: string; features: unknown; display_order: number | null; is_active: boolean | null;
+  starting_price: number; billing_type: string; features: unknown; image_url: string | null; display_order: number | null; is_active: boolean | null;
 };
 
 export function ServicesManager() {
@@ -21,7 +21,7 @@ export function ServicesManager() {
     queryFn: async (): Promise<Row[]> => {
       const { data, error } = await supabase
         .from("services")
-        .select("id,title,slug,short_description,full_description,starting_price,billing_type,features,display_order,is_active")
+        .select("id,title,slug,short_description,full_description,starting_price,billing_type,features,image_url,display_order,is_active")
         .order("display_order");
       if (error) throw error;
       return data as Row[];
@@ -97,6 +97,7 @@ function ServiceForm({ row, onDone }: { row: Row | null; onDone: () => void }) {
           billing_type: v("billing_type"),
           features: v("features").split("\n").map((s) => s.trim()).filter(Boolean),
           display_order: Number(v("display_order")) || 0,
+          image_url: v("image_url") || null,
         };
         setSaving(true);
         const { error } = row
@@ -112,6 +113,7 @@ function ServiceForm({ row, onDone }: { row: Row | null; onDone: () => void }) {
       <Field label="Billing (e.g. One-time, Monthly)" name="billing_type" def={row?.billing_type} />
       <Field label="Starting price (USD)" name="starting_price" def={row ? String(row.starting_price) : ""} />
       <Field label="Display order" name="display_order" def={String(row?.display_order ?? 0)} />
+      <Field label="Image link (from Media → Copy link)" name="image_url" def={row?.image_url ?? ""} wide />
       <Field label="Short description" name="short_description" def={row?.short_description} wide />
       <label className="grid gap-1 text-xs text-muted-foreground md:col-span-2">
         Full description

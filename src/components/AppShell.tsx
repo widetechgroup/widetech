@@ -54,7 +54,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       {/* Desktop sidebar */}
       <aside className="glass sticky top-0 hidden h-screen w-64 shrink-0 flex-col gap-2 p-4 md:flex">
         <Link to="/" className="mb-6 flex items-center gap-3 px-2">
-          <img src={logo.url} alt={company.name || "Logo"} className="h-10 w-auto" />
+          <img src={company.logoUrl ?? logo.url} alt={company.name || "Logo"} className="h-10 w-auto" />
           <span className="min-w-0">
             <span className="block truncate text-sm font-bold">{company.name}</span>
             <span className="block truncate text-[11px] tracking-widest text-muted-foreground">{company.tagline}</span>
@@ -92,7 +92,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Mobile top bar */}
         <header className="glass sticky top-0 z-30 flex items-center gap-3 px-4 py-3 md:hidden">
-          <img src={logo.url} alt={company.name || "Logo"} className="h-8 w-auto shrink-0" />
+          <img src={company.logoUrl ?? logo.url} alt={company.name || "Logo"} className="h-8 w-auto shrink-0" />
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-bold">{company.name}</p>
             <p className="truncate text-[10px] tracking-widest text-muted-foreground">{company.tagline}</p>
