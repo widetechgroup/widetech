@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { useQuery as _unused } from "@tanstack/react-query";
 import { featureList, servicesQuery, tzs, usd, type Service } from "@/lib/services";
 import { RequestDialog } from "@/components/RequestDialog";
 import { ConsultationDialog } from "@/components/ConsultationDialog";
