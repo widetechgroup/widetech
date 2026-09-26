@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState, type FormEvent } from "react";
 import { toast } from "sonner";
-import { Plus, Search, Copy, Trash2, Power, Settings2, Users, Lock } from "lucide-react";
+import { Plus, Search, Copy, Eye, Trash2, Power, Settings2, Users, Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -12,6 +12,8 @@ type Module = { key: string; name: string; description: string | null; is_enable
 type Perm = { key: string; module_key: string; action: string; description: string | null; is_sensitive: boolean };
 
 const MATRIX = ["view", "create", "edit", "delete", "manage"] as const;
+export const SCOPES = ["all", "team", "assigned", "own", "custom"] as const;
+export const SCOPE_LABEL: Record<string, string> = { all: "All records", team: "Team", assigned: "Assigned to them", own: "Their own", custom: "Custom" };
 const inputCls = "min-h-[40px] w-full rounded-lg border border-border bg-background/60 px-3 text-sm text-foreground";
 const errMsg = (e: unknown) => (e instanceof Error ? e.message : typeof e === "object" && e && "message" in e ? String((e as { message: unknown }).message) : "Failed");
 
@@ -23,17 +25,19 @@ function useRbac() {
         supabase.from("roles").select("*").order("role_type", { ascending: false }).order("created_at"),
         supabase.from("app_modules").select("key,name,description,is_enabled,display_order,depends_on").order("display_order"),
         supabase.from("permissions").select("key,module_key,action,description,is_sensitive").order("key"),
-        supabase.from("role_permissions").select("role,permission_key"),
+        supabase.from("role_permissions").select("role,permission_key,scope"),
         supabase.from("user_roles").select("user_id,role"),
         supabase.from("user_custom_roles").select("user_id,role_key"),
       ]);
       for (const r of [roles, modules, perms, rp, ur, ucr]) if (r.error) throw r.error;
       const grants = new Map<string, Set<string>>();
+      const scopes = new Map<string, Record<string, string>>();
+      for (const g of rp.data ?? []) { const m = g.permission_key.split(".")[0]!; scopes.set(g.role, { ...(scopes.get(g.role) ?? {}), [m]: g.scope }); }
       for (const g of rp.data ?? []) { if (!grants.has(g.role)) grants.set(g.role, new Set()); grants.get(g.role)!.add(g.permission_key); }
       const users = new Map<string, number>();
       for (const u of ur.data ?? []) users.set(u.role, (users.get(u.role) ?? 0) + 1);
       for (const u of ucr.data ?? []) users.set(u.role_key, (users.get(u.role_key) ?? 0) + 1);
-      return { roles: (roles.data ?? []) as Role[], modules: (modules.data ?? []) as Module[], perms: (perms.data ?? []) as Perm[], grants, users };
+      return { roles: (roles.data ?? []) as Role[], modules: (modules.data ?? []) as Module[], perms: (perms.data ?? []) as Perm[], grants, scopes, users };
     },
   });
 }
@@ -44,11 +48,12 @@ export function RolesManager() {
   const [editing, setEditing] = useState<string | null>(null);
   const [creating, setCreating] = useState<Role | "new" | null>(null);
   const [assigning, setAssigning] = useState<Role | null>(null);
+  const [previewing, setPreviewing] = useState<Role | null>(null);
   const refresh = () => { qc.invalidateQueries({ queryKey: ["rbac"] }); qc.invalidateQueries({ queryKey: ["my-permissions"] }); qc.invalidateQueries({ queryKey: ["admin-users"] }); };
 
   if (data.isLoading) return <p className="text-sm text-muted-foreground">Loading roles…</p>;
   if (data.isError || !data.data) return <p className="text-sm text-destructive">Couldn't load roles.</p>;
-  const { roles, modules, perms, grants, users } = data.data;
+  const { roles, modules, perms, grants, scopes, users } = data.data;
 
   const modulesOf = (rk: string) => new Set([...(grants.get(rk) ?? [])].map((p) => p.split(".")[0])).size;
 
@@ -97,6 +102,7 @@ export function RolesManager() {
                   <div className="flex gap-1">
                     {r.key !== "super_admin" && <IconBtn label="Configure permissions" onClick={() => setEditing(r.key)}><Settings2 className="h-4 w-4" /></IconBtn>}
                     {r.role_type === "custom" && <IconBtn label="Assign users" onClick={() => setAssigning(r)}><Users className="h-4 w-4" /></IconBtn>}
+                    <IconBtn label="Preview access" onClick={() => setPreviewing(r)}><Eye className="h-4 w-4" /></IconBtn>
                     <IconBtn label="Duplicate" onClick={() => setCreating(r)}><Copy className="h-4 w-4" /></IconBtn>
                     {r.key !== "super_admin" && <IconBtn label={r.is_active ? "Disable" : "Enable"} onClick={() => toggleActive(r)}><Power className="h-4 w-4" /></IconBtn>}
                     {r.role_type === "custom" && !r.is_protected && <IconBtn label="Delete" onClick={() => remove(r)} danger><Trash2 className="h-4 w-4" /></IconBtn>}
@@ -112,7 +118,7 @@ export function RolesManager() {
 
       <Sheet open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <SheetContent className="w-full overflow-y-auto sm:max-w-3xl">
-          {editing && roles.some((r) => r.key === editing) && <PermissionEditor key={editing} role={roles.find((r) => r.key === editing)!} modules={modules} perms={perms} granted={grants.get(editing) ?? new Set()} onSaved={() => { refresh(); setEditing(null); }} />}
+          {editing && roles.some((r) => r.key === editing) && <PermissionEditor key={editing} role={roles.find((r) => r.key === editing)!} modules={modules} perms={perms} granted={grants.get(editing) ?? new Set()} initialScopes={scopes.get(editing) ?? {}} onSaved={() => { refresh(); setEditing(null); }} />}
         </SheetContent>
       </Sheet>
 
@@ -121,6 +127,13 @@ export function RolesManager() {
           <DialogHeader><DialogTitle>{creating === "new" ? "Create role" : `Duplicate ${typeof creating === "object" && creating ? creating.name : ""}`}</DialogTitle></DialogHeader>
           {creating && <CreateRoleForm source={creating === "new" ? null : creating} sourceGrants={creating !== "new" ? grants.get(creating.key) : undefined} existing={roles.map((r) => r.key)}
             onDone={(key) => { setCreating(null); refresh(); setEditing(key); }} />}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!previewing} onOpenChange={(o) => !o && setPreviewing(null)}>
+        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
+          <DialogHeader><DialogTitle>Preview: {previewing?.name}</DialogTitle></DialogHeader>
+          {previewing && <AccessPreview modules={modules} perms={previewing.key === "super_admin" ? perms.map((p) => ({ permission_key: p.key, scope: "all" })) : [...(grants.get(previewing.key) ?? [])].map((k) => ({ permission_key: k, scope: scopes.get(previewing.key)?.[k.split(".")[0]!] ?? "all" }))} inactive={!previewing.is_active} />}
         </DialogContent>
       </Dialog>
 
@@ -178,8 +191,9 @@ function CreateRoleForm({ source, sourceGrants, existing, onDone }: { source: Ro
   );
 }
 
-function PermissionEditor({ role, modules, perms, granted, onSaved }: { role: Role; modules: Module[]; perms: Perm[]; granted: Set<string>; onSaved: () => void }) {
+function PermissionEditor({ role, modules, perms, granted, initialScopes, onSaved }: { role: Role; modules: Module[]; perms: Perm[]; granted: Set<string>; initialScopes: Record<string, string>; onSaved: () => void }) {
   const [sel, setSel] = useState<Set<string>>(() => new Set(granted));
+  const [scopeOf, setScopeOf] = useState<Record<string, string>>(() => ({ ...initialScopes }));
   const [q, setQ] = useState("");
   const [busy, setBusy] = useState(false);
   const permKeys = useMemo(() => new Set(perms.map((p) => p.key)), [perms]);
@@ -204,12 +218,14 @@ function PermissionEditor({ role, modules, perms, granted, onSaved }: { role: Ro
   const save = async () => {
     const add = [...sel].filter((k) => !granted.has(k));
     const del = [...granted].filter((k) => !sel.has(k));
-    if (!add.length && !del.length) { onSaved(); return; }
+    const scopeChanged = Object.keys(scopeOf).filter((m) => (scopeOf[m] ?? "all") !== (initialScopes[m] ?? "all"));
+    if (!add.length && !del.length && !scopeChanged.length) { onSaved(); return; }
     if (missingDeps.length && !window.confirm(`Some sections depend on others:\n${missingDeps.map((d) => `• ${modName(d.for)} needs ${modName(d.module)} (view)`).join("\n")}\n\nSave anyway without them? Choose Cancel and use "Add required" to include them.`)) return;
     setBusy(true);
     try {
       if (del.length) { const { error } = await supabase.from("role_permissions").delete().eq("role", role.key).in("permission_key", del); if (error) throw error; }
-      if (add.length) { const { error } = await supabase.from("role_permissions").insert(add.map((p) => ({ role: role.key, permission_key: p }))); if (error) throw error; }
+      if (add.length) { const { error } = await supabase.from("role_permissions").insert(add.map((p) => ({ role: role.key, permission_key: p, scope: scopeOf[p.split(".")[0]!] ?? "all" }))); if (error) throw error; }
+      for (const m of scopeChanged) { const { error } = await supabase.from("role_permissions").update({ scope: scopeOf[m]! }).eq("role", role.key).like("permission_key", `${m}.%`); if (error) throw error; }
       toast.success(`Saved ${role.name}: +${add.length} / −${del.length} permissions`);
       onSaved();
     } catch (e) { toast.error(errMsg(e)); } finally { setBusy(false); }
@@ -259,7 +275,13 @@ function PermissionEditor({ role, modules, perms, granted, onSaved }: { role: Ro
                 const all = keys.every((k) => sel.has(k));
                 return (
                   <tr key={m.key} className={cn("border-b border-border/40 last:border-0", !m.is_enabled && "opacity-50")}>
-                    <td className="px-3 py-2"><p className="font-medium">{m.name}</p>{!m.is_enabled && <p className="text-[10px] text-muted-foreground">Section switched off</p>}
+                    <td className="px-3 py-2"><p className="flex items-center gap-2 font-medium">{m.name}
+                      {keys.some((k) => sel.has(k)) && (
+                        <select aria-label={`Record scope for ${m.name}`} value={scopeOf[m.key] ?? "all"} onChange={(e) => setScopeOf((c) => ({ ...c, [m.key]: e.target.value }))}
+                          className="h-7 rounded-md border border-border bg-background/60 px-1 text-[11px] font-normal">
+                          {SCOPES.map((sc) => <option key={sc} value={sc}>{SCOPE_LABEL[sc]}</option>)}
+                        </select>
+                      )}</p>{!m.is_enabled && <p className="text-[10px] text-muted-foreground">Section switched off</p>}
                       {extras(m.key).length > 0 && (
                         <div className="mt-1 flex flex-wrap gap-1">{extras(m.key).map((p) => (
                           <button key={p.key} onClick={() => flip([p.key], !sel.has(p.key))} title={p.description ?? ""}
@@ -349,5 +371,35 @@ function ModuleSwitches({ modules, onChanged }: { modules: Module[]; onChanged: 
         ))}
       </div>
     </section>
+  );
+}
+
+/** Read-only view of what a role or person can reach. Never grants anything. */
+export function AccessPreview({ modules, perms, inactive }: { modules: { key: string; name: string; is_enabled: boolean }[]; perms: { permission_key: string; scope: string }[]; inactive?: boolean }) {
+  const byModule = new Map<string, { actions: string[]; scope: string }>();
+  for (const p of perms) {
+    const [m, a] = p.permission_key.split(".") as [string, string];
+    const cur = byModule.get(m) ?? { actions: [], scope: p.scope };
+    cur.actions.push(a.replace(/_/g, " ")); byModule.set(m, cur);
+  }
+  const visible = modules.filter((m) => m.is_enabled && byModule.has(m.key));
+  const locked = modules.filter((m) => !m.is_enabled || !byModule.has(m.key));
+  return (
+    <div className="space-y-4 text-sm">
+      {inactive && <p className="rounded-lg bg-muted p-2 text-xs">This role is disabled, so none of this applies right now.</p>}
+      <div>
+        <p className="text-xs font-semibold text-muted-foreground">Can open ({visible.length})</p>
+        <ul className="mt-2 space-y-1.5">{visible.map((m) => { const x = byModule.get(m.key)!; return (
+          <li key={m.key} className="rounded-lg border border-border/60 p-2"><p className="font-medium">✓ {m.name} <span className="text-xs font-normal text-muted-foreground">· {SCOPE_LABEL[x.scope] ?? x.scope}</span></p>
+            <p className="text-[11px] capitalize text-muted-foreground">{x.actions.join(", ")}</p></li>); })}
+          {visible.length === 0 && <li className="text-xs text-muted-foreground">Nothing.</li>}
+        </ul>
+      </div>
+      <div>
+        <p className="text-xs font-semibold text-muted-foreground">Restricted ({locked.length})</p>
+        <div className="mt-2 flex flex-wrap gap-1.5">{locked.map((m) => <span key={m.key} className="rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground">🔒 {m.name}{!m.is_enabled ? " (off)" : ""}</span>)}</div>
+      </div>
+      <p className="text-[11px] text-muted-foreground">Preview only — it doesn't change or bypass anything.</p>
+    </div>
   );
 }
