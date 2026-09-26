@@ -1,10 +1,18 @@
 {
+  "id": "/",
   "name": "WideTech Group",
   "short_name": "WideTech",
   "description": "KWETU WIDE TECH TU. Technology services for Tanzania and East Africa.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "any",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
-  "icons": [{ "src": "/favicon.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }]
+  "categories": ["business", "productivity"],
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
 }
