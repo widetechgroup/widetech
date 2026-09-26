@@ -8,5 +8,6 @@
 ## Super Admin Control Center (WIDETECH_SUPER_ADMIN_SPEC.md)
 - [x] Stage 1: Control Center home (§1–2), users table, create user, edit, status (active/pending/suspended/disabled/locked), password reset, user detail tabs (§3, 4, 14, 19)
 - [x] Stage 2: role assignment rules, custom roles, role editor, permission editor, module access, permission search, role dependencies (§5–11, 21, 24)
-- [ ] Stage 3: record-level + temporary permissions, bulk actions, view-as-user (§12, 13, 20, 22, 23)
+- [x] Stage 3: record-level + temporary permissions, bulk actions, view-as-user (§12, 13, 20, 22, 23)
+- [ ] Switch staff pages from standard roles to permissions (custom-role people still need a standard staff role)
 - [ ] Stage 4: sessions, activity, audit log, role audit, activity center, super admin mobile (§15–18, 25, 26, 29)
