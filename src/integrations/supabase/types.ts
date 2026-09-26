@@ -14,6 +14,72 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          details: Json | null
+          id: string
+          record_id: string | null
+          table_name: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          details?: Json | null
+          id?: string
+          record_id?: string | null
+          table_name: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          details?: Json | null
+          id?: string
+          record_id?: string | null
+          table_name?: string
+        }
+        Relationships: []
+      }
+      company_settings: {
+        Row: {
+          address: string | null
+          company_name: string
+          email: string | null
+          id: number
+          phone: string | null
+          tagline: string
+          updated_at: string
+          usd_tzs_rate: number
+          whatsapp: string | null
+        }
+        Insert: {
+          address?: string | null
+          company_name?: string
+          email?: string | null
+          id?: number
+          phone?: string | null
+          tagline?: string
+          updated_at?: string
+          usd_tzs_rate?: number
+          whatsapp?: string | null
+        }
+        Update: {
+          address?: string | null
+          company_name?: string
+          email?: string | null
+          id?: number
+          phone?: string | null
+          tagline?: string
+          updated_at?: string
+          usd_tzs_rate?: number
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
       consultations: {
         Row: {
           created_at: string | null
