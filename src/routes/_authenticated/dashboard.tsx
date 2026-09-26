@@ -335,3 +335,52 @@ function Team() {
     </div>
   );
 }
+
+function Projects() {
+  const qc = useQueryClient();
+  const list = useQuery({
+    queryKey: ["staff-projects"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("projects")
+        .select("id,title,status,progress")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+  const update = async (id: string, patch: { status?: string; progress?: number }) => {
+    const { error } = await supabase.from("projects").update(patch).eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Updated");
+    qc.invalidateQueries({ queryKey: ["staff-projects"] });
+  };
+  return (
+    <div className="space-y-3">
+      {list.data?.length === 0 && (
+        <div className="glass rounded-2xl p-6 text-sm text-muted-foreground">No projects yet. Accepted quotes appear here.</div>
+      )}
+      {list.data?.map((p) => (
+        <article key={p.id} className="glass rounded-2xl p-5">
+          <h3 className="truncate font-bold">{p.title}</h3>
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <select className={selectCls} value={p.status} onChange={(e) => update(p.id, { status: e.target.value })}>
+              {["active", "on_hold", "completed"].map((s) => (
+                <option key={s} value={s}>{s.replace("_", " ")}</option>
+              ))}
+            </select>
+            <label className="flex items-center gap-2 text-xs text-muted-foreground">
+              Progress
+              <input
+                type="range" min={0} max={100} step={10} defaultValue={p.progress}
+                onMouseUp={(e) => update(p.id, { progress: Number(e.currentTarget.value) })}
+                onTouchEnd={(e) => update(p.id, { progress: Number(e.currentTarget.value) })}
+              />
+              {p.progress}%
+            </label>
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+}
