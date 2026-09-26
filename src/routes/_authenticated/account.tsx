@@ -64,7 +64,10 @@ function AccountPage() {
       })
       .eq("id", user!.id);
     setSaving(false);
-    if (error) return toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     await queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
     toast.success("Profile updated");
   }

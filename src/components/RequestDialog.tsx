@@ -28,7 +28,7 @@ export function RequestDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
   services: Service[];
-  defaultServiceId?: string;
+  defaultServiceId?: string | undefined;
 }) {
   const { user } = useAuth();
   const navigate = useNavigate();
