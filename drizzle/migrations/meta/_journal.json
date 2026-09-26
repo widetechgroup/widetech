@@ -57,6 +57,13 @@
       "when": 1790429489903,
       "tag": "0007_rbac_permissions_foundation",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1790430742596,
+      "tag": "0008_branding_account_settings",
+      "breakpoints": true
     }
   ]
 }

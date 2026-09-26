@@ -74,38 +74,65 @@ export type Database = {
       company_settings: {
         Row: {
           address: string | null
+          business_hours: string | null
           company_name: string
           email: string | null
+          facebook_url: string | null
           id: number
+          instagram_url: string | null
+          legal_name: string | null
+          linkedin_url: string | null
           logo_url: string | null
           phone: string | null
+          short_description: string | null
           tagline: string
+          tax_number: string | null
           updated_at: string
+          usd_eur_rate: number
           usd_tzs_rate: number
+          website: string | null
           whatsapp: string | null
         }
         Insert: {
           address?: string | null
+          business_hours?: string | null
           company_name?: string
           email?: string | null
+          facebook_url?: string | null
           id?: number
+          instagram_url?: string | null
+          legal_name?: string | null
+          linkedin_url?: string | null
           logo_url?: string | null
           phone?: string | null
+          short_description?: string | null
           tagline?: string
+          tax_number?: string | null
           updated_at?: string
+          usd_eur_rate?: number
           usd_tzs_rate?: number
+          website?: string | null
           whatsapp?: string | null
         }
         Update: {
           address?: string | null
+          business_hours?: string | null
           company_name?: string
           email?: string | null
+          facebook_url?: string | null
           id?: number
+          instagram_url?: string | null
+          legal_name?: string | null
+          linkedin_url?: string | null
           logo_url?: string | null
           phone?: string | null
+          short_description?: string | null
           tagline?: string
+          tax_number?: string | null
           updated_at?: string
+          usd_eur_rate?: number
           usd_tzs_rate?: number
+          website?: string | null
           whatsapp?: string | null
         }
         Relationships: []
@@ -227,6 +254,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          address: string | null
           avatar_url: string | null
           city: string | null
           company_name: string | null
@@ -236,11 +264,15 @@ export type Database = {
           full_name: string
           id: string
           is_suspended: boolean
+          job_title: string | null
           phone: string | null
+          preferred_currency: string
           suspended_at: string | null
           updated_at: string | null
+          whatsapp: string | null
         }
         Insert: {
+          address?: string | null
           avatar_url?: string | null
           city?: string | null
           company_name?: string | null
@@ -250,11 +282,15 @@ export type Database = {
           full_name: string
           id: string
           is_suspended?: boolean
+          job_title?: string | null
           phone?: string | null
+          preferred_currency?: string
           suspended_at?: string | null
           updated_at?: string | null
+          whatsapp?: string | null
         }
         Update: {
+          address?: string | null
           avatar_url?: string | null
           city?: string | null
           company_name?: string | null
@@ -264,9 +300,12 @@ export type Database = {
           full_name?: string
           id?: string
           is_suspended?: boolean
+          job_title?: string | null
           phone?: string | null
+          preferred_currency?: string
           suspended_at?: string | null
           updated_at?: string | null
+          whatsapp?: string | null
         }
         Relationships: []
       }
