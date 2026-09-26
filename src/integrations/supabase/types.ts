@@ -530,13 +530,18 @@ export type Database = {
           display_order: number | null
           features: Json | null
           full_description: string
+          gallery: Json
           id: string
           image_url: string | null
           is_active: boolean | null
+          is_available: boolean
+          is_featured: boolean
           price_tzs: number | null
+          requirements: string | null
           short_description: string
           slug: string
           starting_price: number
+          terms: string | null
           title: string
         }
         Insert: {
@@ -547,13 +552,18 @@ export type Database = {
           display_order?: number | null
           features?: Json | null
           full_description: string
+          gallery?: Json
           id?: string
           image_url?: string | null
           is_active?: boolean | null
+          is_available?: boolean
+          is_featured?: boolean
           price_tzs?: number | null
+          requirements?: string | null
           short_description: string
           slug: string
           starting_price: number
+          terms?: string | null
           title: string
         }
         Update: {
@@ -564,13 +574,18 @@ export type Database = {
           display_order?: number | null
           features?: Json | null
           full_description?: string
+          gallery?: Json
           id?: string
           image_url?: string | null
           is_active?: boolean | null
+          is_available?: boolean
+          is_featured?: boolean
           price_tzs?: number | null
+          requirements?: string | null
           short_description?: string
           slug?: string
           starting_price?: number
+          terms?: string | null
           title?: string
         }
         Relationships: [

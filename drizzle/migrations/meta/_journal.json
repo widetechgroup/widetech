@@ -64,6 +64,13 @@
       "when": 1790430742596,
       "tag": "0008_branding_account_settings",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1790431796631,
+      "tag": "0009_service_detail_fields",
+      "breakpoints": true
     }
   ]
 }
