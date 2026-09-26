@@ -75,6 +75,21 @@ function AuthPage() {
     navigate({ to: "/account" });
   }
 
+  async function handleForgot() {
+    const input = document.getElementById("email") as HTMLInputElement | null;
+    const email = input?.value.trim();
+    if (!email || !input?.checkValidity()) {
+      toast.error("Type your email address first, then tap Forgot password.");
+      input?.focus();
+      return;
+    }
+    setBusy(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/reset-password` });
+    setBusy(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("If that email has an account, a reset link is on its way. Check your inbox.");
+  }
+
   async function handleGoogle() {
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: window.location.origin,
@@ -120,6 +135,11 @@ function AuthPage() {
               autoComplete={mode === "signin" ? "current-password" : "new-password"}
             />
           </div>
+          {mode === "signin" && (
+            <div className="-mt-2 text-right">
+              <button type="button" onClick={handleForgot} className="text-xs font-semibold text-primary">Forgot password?</button>
+            </div>
+          )}
           <Button type="submit" disabled={busy} className="min-h-[48px] w-full">
             {busy ? "Please wait…" : mode === "signin" ? "Sign in" : "Create account"}
           </Button>

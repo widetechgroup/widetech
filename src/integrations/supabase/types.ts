@@ -264,11 +264,13 @@ export type Database = {
           full_name: string
           id: string
           is_suspended: boolean
+          is_verified: boolean
           job_title: string | null
           phone: string | null
           preferred_currency: string
           suspended_at: string | null
           updated_at: string | null
+          verified_at: string | null
           whatsapp: string | null
         }
         Insert: {
@@ -282,11 +284,13 @@ export type Database = {
           full_name: string
           id: string
           is_suspended?: boolean
+          is_verified?: boolean
           job_title?: string | null
           phone?: string | null
           preferred_currency?: string
           suspended_at?: string | null
           updated_at?: string | null
+          verified_at?: string | null
           whatsapp?: string | null
         }
         Update: {
@@ -300,11 +304,13 @@ export type Database = {
           full_name?: string
           id?: string
           is_suspended?: boolean
+          is_verified?: boolean
           job_title?: string | null
           phone?: string | null
           preferred_currency?: string
           suspended_at?: string | null
           updated_at?: string | null
+          verified_at?: string | null
           whatsapp?: string | null
         }
         Relationships: []

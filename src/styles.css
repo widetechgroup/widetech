@@ -34,6 +34,7 @@
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-success: var(--success);
+  --color-verified: var(--verified);
   --color-warning: var(--warning);
   --color-border: var(--border);
   --color-input: var(--input);
@@ -74,6 +75,7 @@
   --destructive: oklch(0.62 0.21 25);
   --destructive-foreground: oklch(0.98 0.005 250);
   --success: oklch(0.72 0.16 160);
+  --verified: oklch(0.65 0.19 250);
   --warning: oklch(0.8 0.15 80);
   --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 16%);

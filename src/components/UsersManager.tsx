@@ -1,3 +1,4 @@
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -12,7 +13,7 @@ const inputCls = "min-h-[40px] rounded-lg border border-border bg-background/60 
 
 type UserRow = {
   id: string; full_name: string; email: string; phone: string | null; company_name: string | null;
-  city: string | null; created_at: string | null; is_suspended: boolean; roles: AppRole[];
+  city: string | null; created_at: string | null; is_suspended: boolean; is_verified: boolean; roles: AppRole[];
 };
 
 export function UsersManager() {
@@ -27,7 +28,7 @@ export function UsersManager() {
     queryKey: ["admin-users"],
     queryFn: async (): Promise<UserRow[]> => {
       const [p, r] = await Promise.all([
-        supabase.from("profiles").select("id,full_name,email,phone,company_name,city,created_at,is_suspended").order("created_at", { ascending: false }),
+        supabase.from("profiles").select("id,full_name,email,phone,company_name,city,created_at,is_suspended,is_verified").order("created_at", { ascending: false }),
         supabase.from("user_roles").select("user_id,role"),
       ]);
       if (p.error) throw p.error;
@@ -67,6 +68,13 @@ export function UsersManager() {
     refresh();
   };
 
+  const toggleVerify = async (u: UserRow) => {
+    const { error } = await supabase.from("profiles").update({ is_verified: !u.is_verified }).eq("id", u.id);
+    if (error) { toast.error(error.message); return; }
+    toast.success(u.is_verified ? "Blue tick removed" : "Account verified");
+    refresh();
+  };
+
   const total = list.data?.length ?? 0;
   const suspended = list.data?.filter((u) => u.is_suspended).length ?? 0;
 
@@ -101,7 +109,7 @@ export function UsersManager() {
         {rows.map((u) => (
           <button key={u.id} onClick={() => setOpenId(u.id)} className="glass grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-2xl p-4 text-left">
             <span className="min-w-0">
-              <span className="block truncate font-bold">{u.full_name}</span>
+              <span className="flex items-center gap-1 font-bold"><span className="truncate">{u.full_name}</span><VerifiedBadge verified={u.is_verified} /></span>
               <span className="block truncate text-xs text-muted-foreground">{u.email}</span>
             </span>
             <span className="flex shrink-0 flex-wrap justify-end gap-1">
@@ -116,7 +124,7 @@ export function UsersManager() {
         <SheetContent className="overflow-y-auto">
           {open && (
             <>
-              <SheetHeader><SheetTitle>{open.full_name}</SheetTitle></SheetHeader>
+              <SheetHeader><SheetTitle className="flex items-center gap-1.5">{open.full_name}<VerifiedBadge verified={open.is_verified} className="h-5 w-5" /></SheetTitle></SheetHeader>
               <dl className="mt-4 space-y-2 px-4 text-sm">
                 {[["Email", open.email], ["Phone", open.phone], ["Company", open.company_name], ["City", open.city],
                   ["Joined", open.created_at ? new Date(open.created_at).toLocaleDateString() : null]].map(([k, v]) => (
@@ -135,7 +143,13 @@ export function UsersManager() {
                   ))}
                 </div>
               </div>
-              <div className="mt-6 px-4 pb-6">
+              <div className="mt-6 px-4">
+                <button onClick={() => toggleVerify(open)}
+                  className={cn("flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg border border-border text-sm font-semibold", !open.is_verified && "text-verified")}>
+                  {open.is_verified ? "Remove blue tick" : "Verify account (blue tick)"}
+                </button>
+              </div>
+              <div className="mt-3 px-4 pb-6">
                 <button disabled={open.id === user?.id} onClick={() => toggleSuspend(open)}
                   className={cn("min-h-[44px] w-full rounded-lg text-sm font-semibold disabled:opacity-50",
                     open.is_suspended ? "bg-primary text-primary-foreground" : "bg-destructive text-destructive-foreground")}>
