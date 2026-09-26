@@ -472,18 +472,21 @@ export type Database = {
           id: string
           permission_key: string
           role: string
+          scope: string
         }
         Insert: {
           created_at?: string
           id?: string
           permission_key: string
           role: string
+          scope?: string
         }
         Update: {
           created_at?: string
           id?: string
           permission_key?: string
           role?: string
+          scope?: string
         }
         Relationships: [
           {
@@ -828,6 +831,63 @@ export type Database = {
         }
         Relationships: []
       }
+      user_permission_grants: {
+        Row: {
+          created_at: string
+          ends_at: string
+          granted_by: string | null
+          id: string
+          permission_key: string
+          reason: string
+          revoked_at: string | null
+          revoked_by: string | null
+          scope: string
+          starts_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          ends_at: string
+          granted_by?: string | null
+          id?: string
+          permission_key: string
+          reason: string
+          revoked_at?: string | null
+          revoked_by?: string | null
+          scope?: string
+          starts_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          ends_at?: string
+          granted_by?: string | null
+          id?: string
+          permission_key?: string
+          reason?: string
+          revoked_at?: string | null
+          revoked_by?: string | null
+          scope?: string
+          starts_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_permission_grants_permission_key_fkey"
+            columns: ["permission_key"]
+            isOneToOne: false
+            referencedRelation: "permissions"
+            referencedColumns: ["key"]
+          },
+          {
+            foreignKeyName: "user_permission_grants_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string | null
@@ -863,6 +923,13 @@ export type Database = {
     }
     Functions: {
       can_access_request: { Args: { _req: string }; Returns: boolean }
+      effective_permissions: {
+        Args: { _user_id: string }
+        Returns: {
+          permission_key: string
+          scope: string
+        }[]
+      }
       generate_tracking_code: { Args: never; Returns: string }
       has_permission: {
         Args: { _perm: string; _user_id: string }
@@ -877,6 +944,26 @@ export type Database = {
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
       my_permissions: { Args: never; Returns: string[] }
+      permission_scope: {
+        Args: { _perm: string; _user_id: string }
+        Returns: string
+      }
+      preview_user_permissions: {
+        Args: { _user_id: string }
+        Returns: {
+          permission_key: string
+          scope: string
+        }[]
+      }
+      scope_allows: {
+        Args: {
+          _assignee: string
+          _owner: string
+          _perm: string
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role:
