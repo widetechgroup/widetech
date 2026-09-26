@@ -2,7 +2,7 @@ import { BadgeCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /** Blue tick shown next to accounts the super admin has verified. */
-export function VerifiedBadge({ verified, className }: { verified?: boolean | null; className?: string }) {
+export function VerifiedBadge({ verified, className }: { verified?: boolean | null | undefined; className?: string }) {
   if (!verified) return null;
   return (
     <BadgeCheck
