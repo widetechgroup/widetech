@@ -654,6 +654,36 @@ export type Database = {
           },
         ]
       }
+      user_devices: {
+        Row: {
+          device_key: string
+          first_seen: string
+          id: string
+          label: string
+          last_seen: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          device_key: string
+          first_seen?: string
+          id?: string
+          label: string
+          last_seen?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Update: {
+          device_key?: string
+          first_seen?: string
+          id?: string
+          label?: string
+          last_seen?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null

@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { recordDevice } from "@/lib/devices";
 
 type AuthState = {
   user: User | null;
@@ -33,6 +34,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => sub.subscription.unsubscribe();
   }, []);
+
+  const uid = session?.user?.id;
+  useEffect(() => {
+    if (uid) recordDevice(uid).catch(() => {});
+  }, [uid]);
 
   return (
     <AuthContext.Provider

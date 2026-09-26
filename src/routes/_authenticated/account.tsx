@@ -1,3 +1,4 @@
+import { DeviceSecurity } from "@/components/DeviceSecurity";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -152,6 +153,8 @@ function AccountPage() {
           {saving ? "Saving…" : "Save profile"}
         </Button>
       </form>
+
+      <DeviceSecurity />
 
       <button
         onClick={async () => {
