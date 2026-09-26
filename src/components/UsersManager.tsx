@@ -346,18 +346,8 @@ function UserDetail({ u, isSelf, lastSignIn, onChanged }: { u: UserRow; isSelf: 
         )}
 
         {tab === "roles" && (
-          <div>
-            <p className="text-xs text-muted-foreground">Tap to add or remove. A person can hold several roles; their permissions combine.</p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {ALL_ROLES.map((r) => (
-                <button key={r} disabled={isSelf} onClick={() => toggleRole(r)}
-                  className={cn("min-h-[36px] rounded-full border border-border px-3 text-xs font-semibold capitalize disabled:opacity-50", u.roles.includes(r) ? "bg-primary text-primary-foreground" : "text-muted-foreground")}>
-                  {roleLabel(r)}
-                </button>
-              ))}
-            </div>
-            {isSelf && <p className="mt-2 text-xs text-muted-foreground">You can't change your own roles.</p>}
-          </div>
+          <AssignRoles u={u} isSelf={isSelf} onToggleSystem={toggleRole} onChanged={onChanged} />
+
         )}
 
         {tab === "activity" && (
