@@ -101,6 +101,7 @@ function RequestsPage() {
       const { data, error } = await supabase
         .from("consultations")
         .select("id,topic,preferred_date,preferred_time,status,meeting_link")
+        .eq("customer_id", user!.id)
         .order("preferred_date", { ascending: true });
       if (error) throw error;
       return data ?? [];
