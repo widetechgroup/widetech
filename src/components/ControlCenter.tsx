@@ -40,7 +40,7 @@ export function ControlCenter({ onNavigate }: { onNavigate: (t: DashTab, extra?:
   });
 
   const s = stats.data;
-  const kpis: { label: string; value: string; icon: LucideIcon; note?: string; tab?: DashTab }[] = [
+  const kpis: { label: string; value: string; icon: LucideIcon; note?: string | undefined; tab?: DashTab }[] = [
     { label: "Total users", value: String(s?.total ?? "…"), icon: Users, tab: "team" },
     { label: "Active users", value: String(s?.active ?? "…"), icon: UserCheck, tab: "team" },
     { label: "Customers", value: String(s?.customers ?? "…"), icon: UserRound, tab: "team" },
@@ -50,7 +50,7 @@ export function ControlCenter({ onNavigate }: { onNavigate: (t: DashTab, extra?:
     { label: "Active projects", value: String(s?.projects ?? "…"), icon: FolderKanban, tab: "projects" },
     { label: "Open tickets", value: String(s?.tickets ?? "…"), icon: LifeBuoy },
     { label: "Invoices", value: "—", icon: Receipt, note: "Invoices not built yet" },
-    { label: "Revenue (accepted quotes)", value: s ? `$${s.revenue.toLocaleString()}` : "…", icon: Wallet, note: s ? `TZS ${company.toTzs(s.revenue).toLocaleString()}` : undefined },
+    { label: "Revenue (accepted quotes)", value: s ? `$${s.revenue.toLocaleString()}` : "…", icon: Wallet, note: s ? `TZS ${(company.toTzs(s.revenue) ?? 0).toLocaleString()}` : undefined },
     { label: "Unread messages", value: "—", icon: MessageSquare, note: "Read receipts not built yet" },
     { label: "Storage used", value: s ? fmtBytes(s.storage) : "…", icon: HardDrive, tab: "media" },
   ];

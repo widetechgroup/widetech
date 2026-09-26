@@ -187,7 +187,7 @@ function CreateUserForm({ onDone }: { onDone: () => void }) {
     const f = Object.fromEntries(new FormData(e.currentTarget)) as Record<string, string>;
     setBusy(true);
     try {
-      await createFn({ data: { ...f, mode, roles, account_status: f.account_status as AccountStatus } as never });
+      await createFn({ data: { ...f, mode, roles, account_status: f["account_status"] as AccountStatus } as never });
       toast.success(mode === "invite" ? "User created — invitation email sent" : "User created");
       onDone();
     } catch (err) {
