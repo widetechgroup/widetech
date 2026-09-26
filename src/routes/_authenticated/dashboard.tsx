@@ -14,6 +14,7 @@ import { Overview } from "@/components/Overview";
 import { UsersManager } from "@/components/UsersManager";
 import { MediaManager } from "@/components/MediaManager";
 import { ControlCenter } from "@/components/ControlCenter";
+import { RolesManager } from "@/components/RolesManager";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -28,7 +29,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   component: DashboardPage,
 });
 
-export type DashTab = "overview" | "dispatch" | "consult" | "projects" | "activity" | "settings" | "team" | "jobs" | "services" | "media" | "control";
+export type DashTab = "overview" | "dispatch" | "consult" | "projects" | "activity" | "settings" | "team" | "jobs" | "services" | "media" | "control" | "roles";
 
 const STATUSES = ["pending", "reviewing", "quoted", "in_progress", "completed", "cancelled"] as const;
 type Status = (typeof STATUSES)[number];
@@ -58,7 +59,7 @@ function DashboardPage() {
   const tabs = [
     ...(isStaff ? [{ id: "overview", label: "Overview" }, { id: "dispatch", label: "Dispatch" }, { id: "consult", label: "Consultations" }, { id: "projects", label: "Projects" }, { id: "activity", label: "Activity" }] : []),
     ...(isTechnician ? [{ id: "jobs", label: "My jobs" }] : []),
-    ...(isSuperAdmin ? [{ id: "control", label: "Control Center" }, { id: "services", label: "Services & prices" }, { id: "team", label: "Users" }, { id: "media", label: "Media" }, { id: "settings", label: "Company settings" }] : []),
+    ...(isSuperAdmin ? [{ id: "control", label: "Control Center" }, { id: "services", label: "Services & prices" }, { id: "team", label: "Users" }, { id: "roles", label: "Roles & permissions" }, { id: "media", label: "Media" }, { id: "settings", label: "Company settings" }] : []),
   ] as { id: typeof tab; label: string }[];
   const active = tabs.some((t) => t.id === tab) ? tab : tabs[0]!.id;
 
@@ -86,6 +87,7 @@ function DashboardPage() {
         {active === "projects" && <Projects />}
         {active === "jobs" && <Dispatch technicianOnly />}
         {active === "team" && <UsersManager startCreate={search.create === "1"} />}
+        {active === "roles" && <RolesManager />}
         {active === "control" && <ControlCenter onNavigate={setTab} />}
         {active === "activity" && <Activity />}
         {active === "settings" && <Settings />}

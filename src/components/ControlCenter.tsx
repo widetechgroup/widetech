@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Users, UserCheck, UserRound, Briefcase, Clock, ClipboardList, FolderKanban, LifeBuoy, Receipt, Wallet, MessageSquare, HardDrive,
-  UserPlus, ShieldCheck, Tags, ImageUp, History, Settings, type LucideIcon } from "lucide-react";
+  UserPlus, ShieldCheck, KeyRound, ListChecks, Tags, ImageUp, History, Settings, type LucideIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCompany } from "@/lib/company";
 import type { DashTab } from "@/routes/_authenticated/dashboard";
@@ -58,6 +58,8 @@ export function ControlCenter({ onNavigate }: { onNavigate: (t: DashTab, extra?:
   const actions: { label: string; icon: LucideIcon; go: () => void }[] = [
     { label: "Create user", icon: UserPlus, go: () => onNavigate("team", { create: "1" }) },
     { label: "Assign role", icon: ShieldCheck, go: () => onNavigate("team") },
+    { label: "Create role", icon: KeyRound, go: () => onNavigate("roles") },
+    { label: "Manage permissions", icon: ListChecks, go: () => onNavigate("roles") },
     { label: "Add service", icon: Tags, go: () => onNavigate("services") },
     { label: "Upload media", icon: ImageUp, go: () => onNavigate("media") },
     { label: "View audit logs", icon: History, go: () => onNavigate("activity") },
@@ -71,14 +73,14 @@ export function ControlCenter({ onNavigate }: { onNavigate: (t: DashTab, extra?:
         <h2 className="text-xl font-extrabold md:text-2xl">WideTech Control Center</h2>
       </div>
       <section aria-label="Quick actions">
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
           {actions.map((a) => (
             <button key={a.label} onClick={a.go} className="glass flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-2xl p-3 text-xs font-semibold hover:border-primary">
               <a.icon className="h-5 w-5 text-primary" /> + {a.label}
             </button>
           ))}
         </div>
-        <p className="mt-2 text-[11px] text-muted-foreground">Custom roles, permission editor, products, invoices and announcements arrive in the next stages.</p>
+        <p className="mt-2 text-[11px] text-muted-foreground">Products, invoices and announcements arrive in the next stages.</p>
       </section>
       <section aria-label="Key numbers" className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
         {kpis.map((k) => {

@@ -4,6 +4,7 @@ import {
   Home, LayoutGrid, ClipboardList, UserRound, LogIn, Gauge, LifeBuoy, CalendarClock, FolderKanban,
   History, Wrench, Tags, Users, Image as ImageIcon, Settings, Menu, PanelLeftClose, PanelLeftOpen, type LucideIcon,
   ShieldCheck,
+  KeyRound,
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import logo from "@/assets/widetech-logo.png.asset.json";
@@ -47,7 +48,8 @@ function useNavGroups(): NavGroup[] {
       items: [
         { to: "/dashboard", tab: "control", label: "Control Center", icon: ShieldCheck },
         { to: "/dashboard", tab: "services", label: "Services & prices", icon: Tags },
-        { to: "/dashboard", tab: "team", label: "Users & roles", icon: Users },
+        { to: "/dashboard", tab: "team", label: "Users", icon: Users },
+        { to: "/dashboard", tab: "roles", label: "Roles & permissions", icon: KeyRound },
         { to: "/dashboard", tab: "media", label: "Media", icon: ImageIcon },
         { to: "/dashboard", tab: "settings", label: "Branding & settings", icon: Settings },
       ],
