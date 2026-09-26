@@ -1,3 +1,4 @@
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { DeviceSecurity } from "@/components/DeviceSecurity";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -34,7 +35,7 @@ function AccountPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("id,full_name,email,phone,whatsapp,job_title,address,company_name,city,country,avatar_url,preferred_currency")
+        .select("id,full_name,email,phone,whatsapp,job_title,address,company_name,city,country,avatar_url,preferred_currency,is_verified")
         .eq("id", user!.id)
         .maybeSingle();
       if (error) throw error;
@@ -84,7 +85,11 @@ function AccountPage() {
   return (
     <div className="mx-auto w-full max-w-2xl px-4 py-8 md:px-8 md:py-12">
       <h1 className="text-2xl font-extrabold md:text-3xl">My account</h1>
-      <p className="mt-1 text-sm text-muted-foreground">{user?.email}</p>
+      <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
+        {user?.email}
+        <VerifiedBadge verified={profile.data?.is_verified} />
+        {profile.data?.is_verified && <span className="text-xs font-semibold text-verified">Verified</span>}
+      </p>
       {roles.data && roles.data.length > 0 && (
         <p className="mt-2 inline-block rounded-full border border-border px-3 py-1 text-xs font-semibold capitalize text-primary">
           {roles.data.join(", ").replace(/_/g, " ")}

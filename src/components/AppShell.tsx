@@ -1,3 +1,4 @@
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   Home, LayoutGrid, ClipboardList, UserRound, LogIn, Gauge, LifeBuoy, CalendarClock, FolderKanban,
@@ -70,7 +71,7 @@ function useMyProfile() {
     queryKey: ["shell-profile", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("id,full_name,avatar_url,is_suspended").eq("id", user!.id).maybeSingle();
+      const { data } = await supabase.from("profiles").select("id,full_name,avatar_url,is_suspended,is_verified").eq("id", user!.id).maybeSingle();
       return data;
     },
   });
@@ -157,6 +158,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Link to="/account" aria-label="My account" className="flex items-center gap-2 rounded-full pl-1 pr-3 hover:bg-sidebar-accent">
                 {avatar}
                 <span className="max-w-[140px] truncate text-xs font-medium">{profile.data?.full_name}</span>
+                <VerifiedBadge verified={profile.data?.is_verified} />
               </Link>
             ) : (
               <Link to="/auth" className="flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground">
