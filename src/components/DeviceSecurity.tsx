@@ -37,7 +37,7 @@ export function DeviceSecurity() {
 
   const resetPassword = async () => {
     if (!user?.email) return;
-    const { error } = await supabase.auth.resetPasswordForEmail(user.email, { redirectTo: `${window.location.origin}/auth` });
+    const { error } = await supabase.auth.resetPasswordForEmail(user.email, { redirectTo: `${window.location.origin}/reset-password` });
     if (error) { toast.error(error.message); return; }
     setEmail(true);
   };
