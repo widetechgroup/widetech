@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { servicesQuery } from "@/lib/services";
@@ -33,6 +33,34 @@ const statusTone: Record<string, string> = {
   cancelled: "text-destructive",
 };
 
+const STEPS = [
+  ["pending", "Received"],
+  ["reviewing", "Reviewing"],
+  ["quoted", "Quoted"],
+  ["in_progress", "In progress"],
+  ["completed", "Completed"],
+] as const;
+
+function TrackingSteps({ status, progress }: { status: string; progress: number | null }) {
+  if (status === "cancelled") return <p className="mt-4 rounded-lg bg-destructive/10 px-3 py-2 text-xs font-semibold text-destructive">This request was cancelled.</p>;
+  const idx = Math.max(0, STEPS.findIndex(([k]) => k === status));
+  return (
+    <div className="mt-4">
+      <ol className="grid grid-cols-5 gap-1">
+        {STEPS.map(([k, label], i) => (
+          <li key={k} className="min-w-0">
+            <div className={cn("h-1.5 rounded-full", i <= idx ? "bg-primary" : "bg-border")} />
+            <p className={cn("mt-1 truncate text-[10px] sm:text-xs", i === idx ? "font-semibold text-foreground" : "text-muted-foreground")}>{label}</p>
+          </li>
+        ))}
+      </ol>
+      {status === "in_progress" && progress != null && (
+        <p className="mt-2 text-xs text-muted-foreground">Work progress: <span className="font-semibold text-primary">{progress}%</span></p>
+      )}
+    </div>
+  );
+}
+
 function RequestsPage() {
   const { user } = useAuth();
   const [requestOpen, setRequestOpen] = useState(false);
@@ -42,15 +70,28 @@ function RequestsPage() {
   const requests = useQuery({
     queryKey: ["my-requests", user?.id],
     enabled: !!user,
+    refetchInterval: 20000,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("service_requests")
-        .select("id,tracking_code,title,description,urgency,status,created_at,estimated_budget")
+        .select("id,tracking_code,title,description,urgency,status,created_at,updated_at,estimated_budget,projects(progress,status)")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data ?? [];
     },
   });
+
+  // Live tracking: refresh as soon as a request or project changes.
+  useEffect(() => {
+    if (!user) return;
+    const ch = supabase
+      .channel(`track-${user.id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "service_requests" }, () => requests.refetch())
+      .on("postgres_changes", { event: "*", schema: "public", table: "projects" }, () => requests.refetch())
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   const consultations = useQuery({
     queryKey: ["my-consultations", user?.id],
@@ -104,6 +145,8 @@ function RequestsPage() {
               </span>
             </div>
             <p className="mt-3 text-sm text-muted-foreground">{request.description}</p>
+            <TrackingSteps status={request.status} progress={(request.projects as { progress: number }[] | null)?.[0]?.progress ?? null} />
+            <p className="mt-2 text-[11px] text-muted-foreground">Last update {new Date(request.updated_at ?? request.created_at ?? Date.now()).toLocaleString()}</p>
             <p className="mt-3 text-xs capitalize text-muted-foreground">
               Urgency: {request.urgency}
               {request.estimated_budget ? ` · Budget $${request.estimated_budget}` : ""}
