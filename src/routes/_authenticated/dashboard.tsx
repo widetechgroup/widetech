@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { companyQuery } from "@/lib/company";
 import { ServicesManager } from "@/components/ServicesManager";
 import { Overview } from "@/components/Overview";
+import { UsersManager } from "@/components/UsersManager";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -47,7 +48,7 @@ function DashboardPage() {
   const tabs = [
     ...(isStaff ? [{ id: "overview", label: "Overview" }, { id: "dispatch", label: "Dispatch" }, { id: "consult", label: "Consultations" }, { id: "projects", label: "Projects" }, { id: "activity", label: "Activity" }] : []),
     ...(isTechnician ? [{ id: "jobs", label: "My jobs" }] : []),
-    ...(isSuperAdmin ? [{ id: "services", label: "Services & prices" }, { id: "team", label: "Team & roles" }, { id: "settings", label: "Company settings" }] : []),
+    ...(isSuperAdmin ? [{ id: "services", label: "Services & prices" }, { id: "team", label: "Users" }, { id: "settings", label: "Company settings" }] : []),
   ] as { id: typeof tab; label: string }[];
   const active = tabs.some((t) => t.id === tab) ? tab : tabs[0]!.id;
 
@@ -74,7 +75,7 @@ function DashboardPage() {
         {active === "consult" && <Consultations />}
         {active === "projects" && <Projects />}
         {active === "jobs" && <Dispatch technicianOnly />}
-        {active === "team" && <Team />}
+        {active === "team" && <UsersManager />}
         {active === "activity" && <Activity />}
         {active === "settings" && <Settings />}
         {active === "services" && <ServicesManager />}
@@ -289,53 +290,6 @@ function Consultations() {
                 if (e.key === "Enter") update(c.id, { meeting_link: e.currentTarget.value });
               }}
             />
-          </div>
-        </article>
-      ))}
-    </div>
-  );
-}
-
-function Team() {
-  const { user } = useAuth();
-  const qc = useQueryClient();
-  const profiles = useProfiles(true);
-
-  const toggle = async (userId: string, role: AppRole, has: boolean) => {
-    const res = has
-      ? await supabase.from("user_roles").delete().eq("user_id", userId).eq("role", role)
-      : await supabase.from("user_roles").insert({ user_id: userId, role });
-    if (res.error) { toast.error(res.error.message); return; }
-    qc.invalidateQueries({ queryKey: ["staff-profiles"] });
-  };
-
-  return (
-    <div className="space-y-3">
-      {profiles.data?.map((p) => (
-        <article key={p.id} className="glass rounded-2xl p-5">
-          <p className="truncate font-bold">{p.full_name}</p>
-          <p className="truncate text-xs text-muted-foreground">
-            {p.email}
-            {p.company_name ? ` · ${p.company_name}` : ""}
-          </p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {ROLES.map((role) => {
-              const has = p.roles.includes(role);
-              const locked = p.id === user?.id;
-              return (
-                <button
-                  key={role}
-                  disabled={locked}
-                  onClick={() => toggle(p.id, role, has)}
-                  className={cn(
-                    "min-h-[36px] rounded-full border border-border px-3 text-xs font-semibold capitalize disabled:opacity-50",
-                    has ? "bg-primary text-primary-foreground" : "text-muted-foreground",
-                  )}
-                >
-                  {role.replace("_", " ")}
-                </button>
-              );
-            })}
           </div>
         </article>
       ))}

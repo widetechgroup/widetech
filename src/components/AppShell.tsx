@@ -6,6 +6,8 @@ import logo from "@/assets/widetech-logo.png.asset.json";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import { useCompany } from "@/lib/company";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const navItems = [
   { to: "/", label: "Home", icon: Home },
@@ -25,6 +27,27 @@ export function AppShell({ children }: { children: ReactNode }) {
     : navItems;
 
   const isActive = (to: string) => (to === "/" ? pathname === "/" : pathname.startsWith(to));
+  const suspension = useQuery({
+    queryKey: ["my-suspension", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase.from("profiles").select("is_suspended").eq("id", user!.id).maybeSingle();
+      return data?.is_suspended ?? false;
+    },
+  });
+  if (user && suspension.data) {
+    return (
+      <div className="grid min-h-screen place-items-center p-6">
+        <div className="glass max-w-md rounded-2xl p-6 text-center">
+          <h1 className="text-xl font-bold">Account suspended</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Your account has been suspended. Please contact {company.name}{company.phone ? ` on ${company.phone}` : ""}{company.email ? ` or ${company.email}` : ""}.
+          </p>
+          <button onClick={() => supabase.auth.signOut()} className="mt-4 min-h-[44px] rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground">Sign out</button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen w-full">
