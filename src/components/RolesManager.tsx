@@ -118,7 +118,7 @@ export function RolesManager() {
 
       <Dialog open={!!creating} onOpenChange={(o) => !o && setCreating(null)}>
         <DialogContent className="sm:max-w-lg">
-          <DialogHeader><DialogTitle>{creating === "new" ? "Create role" : `Duplicate ${creating && creating !== "new" ? creating.name : ""}`}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{creating === "new" ? "Create role" : `Duplicate ${typeof creating === "object" && creating ? creating.name : ""}`}</DialogTitle></DialogHeader>
           {creating && <CreateRoleForm source={creating === "new" ? null : creating} sourceGrants={creating !== "new" ? grants.get(creating.key) : undefined} existing={roles.map((r) => r.key)}
             onDone={(key) => { setCreating(null); refresh(); setEditing(key); }} />}
         </DialogContent>
