@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_modules: {
+        Row: {
+          created_at: string
+          description: string | null
+          display_order: number
+          is_enabled: boolean
+          key: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          is_enabled?: boolean
+          key: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          is_enabled?: boolean
+          key?: string
+          name?: string
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
@@ -163,6 +190,41 @@ export type Database = {
         }
         Relationships: []
       }
+      permissions: {
+        Row: {
+          action: string
+          created_at: string
+          description: string | null
+          is_sensitive: boolean
+          key: string
+          module_key: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          description?: string | null
+          is_sensitive?: boolean
+          key: string
+          module_key: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          description?: string | null
+          is_sensitive?: boolean
+          key?: string
+          module_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "permissions_module_key_fkey"
+            columns: ["module_key"]
+            isOneToOne: false
+            referencedRelation: "app_modules"
+            referencedColumns: ["key"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -294,6 +356,35 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "service_requests"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      role_permissions: {
+        Row: {
+          created_at: string
+          id: string
+          permission_key: string
+          role: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          permission_key: string
+          role: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          permission_key?: string
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_permissions_permission_key_fkey"
+            columns: ["permission_key"]
+            isOneToOne: false
+            referencedRelation: "permissions"
+            referencedColumns: ["key"]
           },
         ]
       }
@@ -544,6 +635,10 @@ export type Database = {
     }
     Functions: {
       generate_tracking_code: { Args: never; Returns: string }
+      has_permission: {
+        Args: { _perm: string; _user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -552,9 +647,21 @@ export type Database = {
         Returns: boolean
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      my_permissions: { Args: never; Returns: string[] }
     }
     Enums: {
-      app_role: "super_admin" | "admin" | "operator" | "technician" | "customer"
+      app_role:
+        | "super_admin"
+        | "admin"
+        | "operator"
+        | "technician"
+        | "customer"
+        | "operations_manager"
+        | "sales"
+        | "consultant"
+        | "support"
+        | "finance"
+        | "content_manager"
       request_status:
         | "pending"
         | "reviewing"
@@ -689,7 +796,19 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["super_admin", "admin", "operator", "technician", "customer"],
+      app_role: [
+        "super_admin",
+        "admin",
+        "operator",
+        "technician",
+        "customer",
+        "operations_manager",
+        "sales",
+        "consultant",
+        "support",
+        "finance",
+        "content_manager",
+      ],
       request_status: [
         "pending",
         "reviewing",
