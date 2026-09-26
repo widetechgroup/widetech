@@ -48,7 +48,7 @@ export function RequestFiles({ requestId, className }: { requestId: string; clas
       if (file.size > MAX) { toast.error(`${file.name} is larger than 50 MB`); continue; }
       setUploading(file.name);
       const path = `${requestId}/${crypto.randomUUID()}-${file.name.replace(/[^\w.\-]+/g, "_")}`;
-      const up = await supabase.storage.from("request-files").upload(path, file, { contentType: file.type || undefined });
+      const up = await supabase.storage.from("request-files").upload(path, file, file.type ? { contentType: file.type } : {});
       if (up.error) { toast.error(up.error.message); continue; }
       const { error } = await supabase.from("request_files").insert({ request_id: requestId, path, name: file.name, mime_type: file.type || null, size_bytes: file.size });
       if (error) { await supabase.storage.from("request-files").remove([path]); toast.error(error.message); continue; }
