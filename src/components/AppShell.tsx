@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import logo from "@/assets/widetech-logo.png.asset.json";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
+import { useCompany } from "@/lib/company";
 
 const navItems = [
   { to: "/", label: "Home", icon: Home },
@@ -17,6 +18,7 @@ const navItems = [
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { user } = useAuth();
+  const company = useCompany();
   const { isStaff, isTechnician } = useRoles();
   const items = isStaff || isTechnician
     ? [...navItems.slice(0, 4), { to: "/dashboard", label: "Ops", icon: Gauge } as const, navItems[4]]
@@ -29,12 +31,10 @@ export function AppShell({ children }: { children: ReactNode }) {
       {/* Desktop sidebar */}
       <aside className="glass sticky top-0 hidden h-screen w-64 shrink-0 flex-col gap-2 p-4 md:flex">
         <Link to="/" className="mb-6 flex items-center gap-3 px-2">
-          <img src={logo.url} alt="WideTech Group" className="h-10 w-auto" />
+          <img src={logo.url} alt={company.name || "Logo"} className="h-10 w-auto" />
           <span className="min-w-0">
-            <span className="block truncate text-sm font-bold">WideTech Group</span>
-            <span className="block truncate text-[11px] tracking-widest text-muted-foreground">
-              KWETU WIDE TECH TU.
-            </span>
+            <span className="block truncate text-sm font-bold">{company.name}</span>
+            <span className="block truncate text-[11px] tracking-widest text-muted-foreground">{company.tagline}</span>
           </span>
         </Link>
 
@@ -69,12 +69,10 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Mobile top bar */}
         <header className="glass sticky top-0 z-30 flex items-center gap-3 px-4 py-3 md:hidden">
-          <img src={logo.url} alt="WideTech Group" className="h-8 w-auto shrink-0" />
+          <img src={logo.url} alt={company.name || "Logo"} className="h-8 w-auto shrink-0" />
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-bold">WideTech Group</p>
-            <p className="truncate text-[10px] tracking-widest text-muted-foreground">
-              KWETU WIDE TECH TU.
-            </p>
+            <p className="truncate text-sm font-bold">{company.name}</p>
+            <p className="truncate text-[10px] tracking-widest text-muted-foreground">{company.tagline}</p>
           </div>
           {!user && (
             <Link to="/auth" className="shrink-0 text-xs font-semibold text-primary">

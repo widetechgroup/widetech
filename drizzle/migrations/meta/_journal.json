@@ -29,6 +29,13 @@
       "when": 1790426111671,
       "tag": "0003_widetech_phase4_settings_audit",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790428019819,
+      "tag": "0004_services_admin_manage",
+      "breakpoints": true
     }
   ]
 }

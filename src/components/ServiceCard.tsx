@@ -1,5 +1,6 @@
 import { Check } from "lucide-react";
 import { featureList, tzs, usd, type Service } from "@/lib/services";
+import { useCompany } from "@/lib/company";
 
 export function ServiceCard({
   service,
@@ -8,6 +9,7 @@ export function ServiceCard({
   service: Service;
   onRequest?: (service: Service) => void;
 }) {
+  const { toTzs } = useCompany();
   return (
     <article className="glass-interactive flex flex-col rounded-2xl p-5">
       <p className="text-[11px] font-semibold uppercase tracking-wider text-accent">
@@ -30,7 +32,7 @@ export function ServiceCard({
         <p className="text-2xl font-extrabold text-gradient-brand">
           {usd(Number(service.starting_price))}
         </p>
-        <p className="text-xs text-muted-foreground">≈ {tzs(Number(service.price_tzs))}</p>
+        <p className="text-xs text-muted-foreground">≈ {tzs(toTzs(Number(service.starting_price)))}</p>
       </div>
 
       {onRequest && (

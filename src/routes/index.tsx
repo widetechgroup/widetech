@@ -6,6 +6,8 @@ import { servicesQuery, type Service } from "@/lib/services";
 import { ServiceCard } from "@/components/ServiceCard";
 import { RequestDialog } from "@/components/RequestDialog";
 import { ConsultationDialog } from "@/components/ConsultationDialog";
+import { useCompany } from "@/lib/company";
+import { Phone, Mail, MessageCircle } from "lucide-react";
 import logo from "@/assets/widetech-logo.png.asset.json";
 
 export const Route = createFileRoute("/")({
@@ -48,6 +50,7 @@ const pillars = [
 
 function Home() {
   const { data: services = [] } = useQuery(servicesQuery);
+  const company = useCompany();
   const [requestOpen, setRequestOpen] = useState(false);
   const [consultOpen, setConsultOpen] = useState(false);
   const [selected, setSelected] = useState<Service | undefined>();
@@ -60,15 +63,15 @@ function Home() {
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-8 md:px-8 md:py-12">
       <section className="glass overflow-hidden rounded-3xl p-6 md:p-12">
-        <img src={logo.url} alt="WideTech Group" className="h-16 w-auto md:h-24" />
+        <img src={logo.url} alt={company.name || "Logo"} className="h-16 w-auto md:h-24" />
         <p className="mt-6 inline-flex items-center gap-2 rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">
-          <MapPin className="h-3.5 w-3.5 text-accent" /> Dar es Salaam · Serving all of Tanzania
+          <MapPin className="h-3.5 w-3.5 text-accent" /> {company.address}
         </p>
         <h1 className="mt-4 text-4xl font-extrabold leading-tight md:text-6xl">
-          <span className="text-gradient-brand">KWETU WIDE TECH TU.</span>
+          <span className="text-gradient-brand">{company.tagline}</span>
         </h1>
         <p className="mt-4 max-w-2xl text-base text-muted-foreground md:text-lg">
-          WideTech Group builds, secures and maintains the technology Tanzanian businesses run on —
+          {company.name} builds, secures and maintains the technology Tanzanian businesses run on —
           from custom management systems and websites to CCTV, cyber security and daily IT support.
         </p>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -100,7 +103,7 @@ function Home() {
       <section className="mt-10">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4">
           <div className="min-w-0">
-            <h2 className="text-2xl font-extrabold md:text-3xl">Our eight services</h2>
+            <h2 className="text-2xl font-extrabold md:text-3xl">Our services</h2>
             <p className="mt-1 text-sm text-muted-foreground">
               Transparent starting prices in USD and TZS.
             </p>
@@ -119,6 +122,14 @@ function Home() {
           ))}
         </div>
       </section>
+
+      {(company.phone || company.email || company.whatsapp) && (
+        <section className="glass mt-10 grid gap-3 rounded-2xl p-5 sm:grid-cols-3">
+          {company.phone && <a href={`tel:${company.phone}`} className="flex items-center gap-2 text-sm"><Phone className="h-4 w-4 text-primary" />{company.phone}</a>}
+          {company.whatsapp && <a href={`https://wa.me/${company.whatsapp.replace(/\D/g, "")}`} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm"><MessageCircle className="h-4 w-4 text-primary" />WhatsApp {company.whatsapp}</a>}
+          {company.email && <a href={`mailto:${company.email}`} className="flex items-center gap-2 text-sm"><Mail className="h-4 w-4 text-primary" />{company.email}</a>}
+        </section>
+      )}
 
       <RequestDialog
         open={requestOpen}
