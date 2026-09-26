@@ -1,3 +1,4 @@
+import { SplashScreen } from "@/components/SplashScreen";
 import { useRegisterServiceWorker } from "@/components/InstallApp";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
@@ -136,6 +137,7 @@ function RootComponent() {
           <Outlet />
         </AppShell>
         <Toaster position="top-center" />
+        <SplashScreen />
       </AuthProvider>
     </QueryClientProvider>
   );
