@@ -29,7 +29,7 @@ const selectCls =
 
 function DashboardPage() {
   const { isStaff, isSuperAdmin, isTechnician, loading } = useRoles();
-  const [tab, setTab] = useState<"dispatch" | "consult" | "team" | "jobs">("dispatch");
+  const [tab, setTab] = useState<"dispatch" | "consult" | "projects" | "team" | "jobs">("dispatch");
 
   if (loading) return <p className="p-8 text-sm text-muted-foreground">Loading…</p>;
   if (!isStaff && !isTechnician)
@@ -42,7 +42,7 @@ function DashboardPage() {
     );
 
   const tabs = [
-    ...(isStaff ? [{ id: "dispatch", label: "Dispatch" }, { id: "consult", label: "Consultations" }] : []),
+    ...(isStaff ? [{ id: "dispatch", label: "Dispatch" }, { id: "consult", label: "Consultations" }, { id: "projects", label: "Projects" }] : []),
     ...(isTechnician ? [{ id: "jobs", label: "My jobs" }] : []),
     ...(isSuperAdmin ? [{ id: "team", label: "Team & roles" }] : []),
   ] as { id: typeof tab; label: string }[];
@@ -68,6 +68,7 @@ function DashboardPage() {
       <div className="mt-6">
         {active === "dispatch" && <Dispatch />}
         {active === "consult" && <Consultations />}
+        {active === "projects" && <Projects />}
         {active === "jobs" && <Dispatch technicianOnly />}
         {active === "team" && <Team />}
       </div>
@@ -198,6 +199,32 @@ function Dispatch({ technicianOnly = false }: { technicianOnly?: boolean }) {
                     ))}
                   </select>
                 </label>
+              )}
+              {!technicianOnly && r.customer_id && (
+                <form
+                  className="flex flex-wrap items-center gap-2"
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    const f = new FormData(e.currentTarget);
+                    const amount = Number(f.get("amount"));
+                    if (!amount || amount <= 0) { toast.error("Enter an amount"); return; }
+                    const { error } = await supabase.from("quotations").insert({
+                      request_id: r.id,
+                      customer_id: r.customer_id!,
+                      amount_usd: amount,
+                      notes: String(f.get("notes") || "") || null,
+                      created_by: user?.id ?? null,
+                    });
+                    if (error) { toast.error(error.message); return; }
+                    toast.success("Quote sent");
+                    e.currentTarget.reset();
+                    qc.invalidateQueries({ queryKey: ["dispatch"] });
+                  }}
+                >
+                  <input name="amount" type="number" min="1" placeholder="Quote USD" className={cn(selectCls, "w-28 px-3")} />
+                  <input name="notes" placeholder="Scope / notes" className={cn(selectCls, "w-44 px-3")} />
+                  <button className="min-h-[40px] rounded-lg bg-primary px-3 text-sm font-semibold text-primary-foreground">Send quote</button>
+                </form>
               )}
             </div>
           </article>

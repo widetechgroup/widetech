@@ -7,6 +7,7 @@ import { servicesQuery } from "@/lib/services";
 import { RequestDialog } from "@/components/RequestDialog";
 import { ConsultationDialog } from "@/components/ConsultationDialog";
 import { cn } from "@/lib/utils";
+import { QuotesProjects } from "@/components/QuotesProjects";
 
 export const Route = createFileRoute("/_authenticated/requests")({
   head: () => ({
@@ -149,6 +150,8 @@ function RequestsPage() {
           </article>
         ))}
       </section>
+
+      <QuotesProjects />
 
       <RequestDialog open={requestOpen} onOpenChange={setRequestOpen} services={services} />
       <ConsultationDialog open={consultOpen} onOpenChange={setConsultOpen} />
