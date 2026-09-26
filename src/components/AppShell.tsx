@@ -66,7 +66,7 @@ function useNavGroups(): NavGroup[] {
 function useMyProfile() {
   const { user } = useAuth();
   return useQuery({
-    queryKey: ["profile", user?.id],
+    queryKey: ["shell-profile", user?.id],
     enabled: !!user,
     queryFn: async () => {
       const { data } = await supabase.from("profiles").select("id,full_name,avatar_url,is_suspended").eq("id", user!.id).maybeSingle();
