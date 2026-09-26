@@ -1,5 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, LayoutGrid, ClipboardList, UserRound, LogIn } from "lucide-react";
+import { Home, LayoutGrid, ClipboardList, UserRound, LogIn, Gauge } from "lucide-react";
+import { useRoles } from "@/hooks/useRoles";
 import type { ReactNode } from "react";
 import logo from "@/assets/widetech-logo.png.asset.json";
 import { useAuth } from "@/hooks/useAuth";
@@ -15,6 +16,10 @@ const navItems = [
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { user } = useAuth();
+  const { isStaff, isTechnician } = useRoles();
+  const items = isStaff || isTechnician
+    ? [...navItems.slice(0, 3), { to: "/dashboard", label: "Ops", icon: Gauge } as const, navItems[3]]
+    : navItems;
 
   const isActive = (to: string) => (to === "/" ? pathname === "/" : pathname.startsWith(to));
 
@@ -35,7 +40,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
           Main
         </p>
-        {navItems.map((item) => (
+        {items.map((item) => (
           <Link
             key={item.to}
             to={item.to}
@@ -81,8 +86,8 @@ export function AppShell({ children }: { children: ReactNode }) {
       </div>
 
       {/* Mobile bottom navigation */}
-      <nav className="glass safe-bottom fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 md:hidden">
-        {navItems.map((item) => (
+      <nav className="glass safe-bottom fixed inset-x-0 bottom-0 z-40 grid md:hidden" style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}>
+        {items.map((item) => (
           <Link
             key={item.to}
             to={item.to}
