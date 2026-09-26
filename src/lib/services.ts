@@ -12,6 +12,7 @@ export type Service = {
   billing_type: string;
   features: unknown;
   display_order: number | null;
+  image_url?: string | null;
 };
 
 export const servicesQuery = queryOptions({
