@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { companyQuery } from "@/lib/company";
 import { ServicesManager } from "@/components/ServicesManager";
 import { Overview } from "@/components/Overview";
+import { UsersManager } from "@/components/UsersManager";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -47,7 +48,7 @@ function DashboardPage() {
   const tabs = [
     ...(isStaff ? [{ id: "overview", label: "Overview" }, { id: "dispatch", label: "Dispatch" }, { id: "consult", label: "Consultations" }, { id: "projects", label: "Projects" }, { id: "activity", label: "Activity" }] : []),
     ...(isTechnician ? [{ id: "jobs", label: "My jobs" }] : []),
-    ...(isSuperAdmin ? [{ id: "services", label: "Services & prices" }, { id: "team", label: "Team & roles" }, { id: "settings", label: "Company settings" }] : []),
+    ...(isSuperAdmin ? [{ id: "services", label: "Services & prices" }, { id: "team", label: "Users" }, { id: "settings", label: "Company settings" }] : []),
   ] as { id: typeof tab; label: string }[];
   const active = tabs.some((t) => t.id === tab) ? tab : tabs[0]!.id;
 
@@ -74,7 +75,7 @@ function DashboardPage() {
         {active === "consult" && <Consultations />}
         {active === "projects" && <Projects />}
         {active === "jobs" && <Dispatch technicianOnly />}
-        {active === "team" && <Team />}
+        {active === "team" && <UsersManager />}
         {active === "activity" && <Activity />}
         {active === "settings" && <Settings />}
         {active === "services" && <ServicesManager />}
