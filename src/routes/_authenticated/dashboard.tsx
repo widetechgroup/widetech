@@ -1,3 +1,4 @@
+import { RequestFilesToggle } from "@/components/RequestFiles";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -244,6 +245,7 @@ function Dispatch({ technicianOnly = false }: { technicianOnly?: boolean }) {
                 </form>
               )}
             </div>
+            <RequestFilesToggle requestId={r.id} />
           </article>
         ))}
       </div>

@@ -1,3 +1,4 @@
+import { RequestFilesToggle } from "@/components/RequestFiles";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -153,6 +154,7 @@ function RequestsPage() {
               Urgency: {request.urgency}
               {request.estimated_budget ? ` · Budget $${request.estimated_budget}` : ""}
             </p>
+            <RequestFilesToggle requestId={request.id} />
           </article>
         ))}
       </section>
