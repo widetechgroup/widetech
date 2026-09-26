@@ -9,6 +9,7 @@ export type Company = {
   whatsapp: string | null;
   address: string | null;
   usd_tzs_rate: number;
+  logo_url: string | null;
 };
 
 export const companyQuery = queryOptions({
@@ -16,7 +17,7 @@ export const companyQuery = queryOptions({
   queryFn: async (): Promise<Company | null> => {
     const { data, error } = await supabase
       .from("company_settings")
-      .select("company_name,tagline,phone,email,whatsapp,address,usd_tzs_rate")
+      .select("company_name,tagline,phone,email,whatsapp,address,usd_tzs_rate,logo_url")
       .eq("id", 1)
       .maybeSingle();
     if (error) throw error;
@@ -36,6 +37,7 @@ export function useCompany() {
     whatsapp: data?.whatsapp ?? null,
     address: data?.address ?? null,
     rate: data?.usd_tzs_rate ?? null,
+    logoUrl: data?.logo_url ?? null,
     toTzs: (usdAmount: number) => (data ? Math.round(usdAmount * data.usd_tzs_rate) : null),
   };
 }

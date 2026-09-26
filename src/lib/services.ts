@@ -20,7 +20,7 @@ export const servicesQuery = queryOptions({
     const { data, error } = await supabase
       .from("services")
       .select(
-        "id,title,slug,short_description,full_description,starting_price,price_tzs,billing_type,features,display_order",
+        "id,title,slug,short_description,full_description,starting_price,price_tzs,billing_type,features,display_order,image_url",
       )
       .eq("is_active", true)
       .order("display_order", { ascending: true });
