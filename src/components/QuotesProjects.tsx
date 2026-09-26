@@ -3,10 +3,12 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { usd, tzs } from "@/lib/services";
+import { useCompany } from "@/lib/company";
 
 export function QuotesProjects() {
   const { user } = useAuth();
   const qc = useQueryClient();
+  const { toTzs } = useCompany();
 
   const quotes = useQuery({
     queryKey: ["my-quotes", user?.id],
@@ -65,7 +67,7 @@ export function QuotesProjects() {
               </div>
               <p className="mt-3 text-lg font-extrabold text-primary">
                 {usd(Number(q.amount_usd))}{" "}
-                <span className="text-sm font-medium text-muted-foreground">≈ {tzs(Number(q.amount_usd) * 2600)}</span>
+                <span className="text-sm font-medium text-muted-foreground">≈ {tzs(toTzs(Number(q.amount_usd)))}</span>
               </p>
               {q.notes && <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">{q.notes}</p>}
               {q.status === "sent" && (

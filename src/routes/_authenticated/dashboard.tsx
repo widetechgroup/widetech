@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useRoles, type AppRole } from "@/hooks/useRoles";
 import { cn } from "@/lib/utils";
+import { companyQuery } from "@/lib/company";
 import { ServicesManager } from "@/components/ServicesManager";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -429,14 +430,7 @@ function Activity() {
 
 function Settings() {
   const qc = useQueryClient();
-  const q = useQuery({
-    queryKey: ["company-settings"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("company_settings").select("*").eq("id", 1).maybeSingle();
-      if (error) throw error;
-      return data;
-    },
-  });
+  const q = useQuery(companyQuery);
   if (!q.data) return <p className="text-sm text-muted-foreground">Loading…</p>;
   const s = q.data;
   const fields = [
