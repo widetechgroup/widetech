@@ -413,3 +413,70 @@ function UserDetail({ u, isSelf, lastSignIn, onChanged }: { u: UserRow; isSelf: 
     </>
   );
 }
+
+function AssignRoles({ u, isSelf, onToggleSystem, onChanged }: { u: UserRow; isSelf: boolean; onToggleSystem: (r: AppRole) => void; onChanged: () => void }) {
+  const qc = useQueryClient();
+  const data = useQuery({
+    queryKey: ["assign-roles", u.id],
+    queryFn: async () => {
+      const [roles, mine, prof] = await Promise.all([
+        supabase.from("roles").select("key,name,role_type,is_active").order("name"),
+        supabase.from("user_custom_roles").select("role_key").eq("user_id", u.id),
+        supabase.from("profiles").select("primary_role").eq("id", u.id).maybeSingle(),
+      ]);
+      if (roles.error) throw roles.error;
+      return { roles: roles.data ?? [], custom: new Set((mine.data ?? []).map((x) => x.role_key)), primary: prof.data?.primary_role ?? null };
+    },
+  });
+  const reload = () => { qc.invalidateQueries({ queryKey: ["assign-roles", u.id] }); qc.invalidateQueries({ queryKey: ["rbac"] }); onChanged(); };
+  const nameOf = (k: string) => data.data?.roles.find((r) => r.key === k)?.name ?? roleLabel(k);
+  const held: string[] = [...u.roles, ...(data.data ? [...data.data.custom] : [])];
+
+  const setPrimary = async (k: string) => {
+    if (k && !held.includes(k)) {
+      const isSystem = (ALL_ROLES as string[]).includes(k);
+      const res = isSystem ? await supabase.from("user_roles").insert({ user_id: u.id, role: k as AppRole }) : await supabase.from("user_custom_roles").insert({ user_id: u.id, role_key: k });
+      if (res.error) { toast.error(res.error.message); return; }
+    }
+    const { error } = await supabase.from("profiles").update({ primary_role: k || null }).eq("id", u.id);
+    if (error) { toast.error(error.message); return; }
+    toast.success(k ? `Primary role: ${nameOf(k)}` : "Primary role cleared"); reload();
+  };
+  const toggleCustom = async (k: string, has: boolean) => {
+    const res = has ? await supabase.from("user_custom_roles").delete().eq("user_id", u.id).eq("role_key", k) : await supabase.from("user_custom_roles").insert({ user_id: u.id, role_key: k });
+    if (res.error) { toast.error(res.error.message); return; }
+    toast.success(has ? `Removed ${nameOf(k)}` : `Added ${nameOf(k)}`); reload();
+  };
+
+  if (isSelf) return <p className="text-xs text-muted-foreground">You can't change your own roles. Current: {held.map(nameOf).join(", ")}</p>;
+  const custom = data.data?.roles.filter((r) => r.role_type === "custom") ?? [];
+  return (
+    <div className="space-y-5">
+      <label className="grid gap-1 text-xs font-semibold text-muted-foreground">Primary role
+        <select className={inputCls} value={data.data?.primary ?? ""} onChange={(e) => setPrimary(e.target.value)}>
+          <option value="">— Not set —</option>
+          {data.data?.roles.filter((r) => r.is_active).map((r) => <option key={r.key} value={r.key}>{r.name}</option>)}
+        </select>
+      </label>
+      <div>
+        <p className="text-xs font-semibold text-muted-foreground">System roles</p>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {ALL_ROLES.map((r) => (
+            <button key={r} onClick={() => onToggleSystem(r)} className={cn("min-h-[36px] rounded-full border border-border px-3 text-xs font-semibold", u.roles.includes(r) ? "bg-primary text-primary-foreground" : "text-muted-foreground")}>{nameOf(r)}</button>
+          ))}
+        </div>
+      </div>
+      <div>
+        <p className="text-xs font-semibold text-muted-foreground">Custom roles</p>
+        {custom.length === 0 ? <p className="mt-2 text-xs text-muted-foreground">No custom roles yet — create them under Roles & permissions.</p> : (
+          <div className="mt-2 flex flex-wrap gap-2">
+            {custom.map((r) => { const has = !!data.data?.custom.has(r.key); return (
+              <button key={r.key} onClick={() => toggleCustom(r.key, has)} className={cn("min-h-[36px] rounded-full border border-border px-3 text-xs font-semibold", has ? "bg-accent text-accent-foreground" : "text-muted-foreground", !r.is_active && "line-through opacity-60")}>{r.name}</button>
+            ); })}
+          </div>
+        )}
+      </div>
+      <p className="text-[11px] text-muted-foreground">Their access is the combination of every active role they hold.</p>
+    </div>
+  );
+}
