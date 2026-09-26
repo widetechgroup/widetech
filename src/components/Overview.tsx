@@ -398,7 +398,7 @@ export function Overview({ onNavigate }: { onNavigate?: (tab: "dispatch" | "cons
           {data.logs.length === 0 ? <Empty text="No activity yet." /> : (
             <ul className="space-y-3">
               {data.logs.slice(0, 6).map((l) => {
-                const d = (l.details ?? {}) as Record<string, string | null>;
+                const d = (l.details ?? {}) as { status?: string | null; old_status?: string | null };
                 const verb = l.action === "insert" ? "New" : l.action === "delete" ? "Removed" : "Updated";
                 return (
                   <li key={l.id} className="flex gap-2.5">
