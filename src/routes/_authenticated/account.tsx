@@ -165,23 +165,23 @@ function AccountPage() {
   );
 }
 
-function AvatarPicker({ userId, name, url, onChange }: { userId?: string; name: string; url: string | null; onChange: () => void }) {
+function AvatarPicker({ userId, name, url, onChange }: { userId: string | undefined; name: string; url: string | null; onChange: () => void }) {
   const [busy, setBusy] = useState(false);
   const initials = name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase() || "?";
 
   async function upload(file: File) {
     if (!userId) return;
-    if (!file.type.startsWith("image/")) return toast.error("Please choose an image");
-    if (file.size > 5 * 1024 * 1024) return toast.error("Image must be under 5MB");
+    if (!file.type.startsWith("image/")) { toast.error("Please choose an image"); return; }
+    if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5MB");
     setBusy(true);
     const path = `avatars/${userId}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
     const up = await supabase.storage.from("media").upload(path, file, { contentType: file.type });
-    if (up.error) { setBusy(false); return toast.error(up.error.message); }
+    if (up.error) { setBusy(false); { toast.error(up.error.message); }
     const signed = await supabase.storage.from("media").createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
-    if (signed.error) { setBusy(false); return toast.error(signed.error.message); }
+    if (signed.error) { setBusy(false); { toast.error(signed.error.message); }
     const { error } = await supabase.from("profiles").update({ avatar_url: signed.data.signedUrl }).eq("id", userId);
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message);
     toast.success("Profile picture updated");
     onChange();
   }
@@ -193,7 +193,7 @@ function AvatarPicker({ userId, name, url, onChange }: { userId?: string; name: 
     if (files?.length) await supabase.storage.from("media").remove(files.map((f) => `avatars/${userId}/${f.name}`));
     const { error } = await supabase.from("profiles").update({ avatar_url: null }).eq("id", userId);
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message);
     toast.success("Profile picture removed");
     onChange();
   }
