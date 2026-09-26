@@ -29,7 +29,7 @@ const selectCls =
 
 function DashboardPage() {
   const { isStaff, isSuperAdmin, isTechnician, loading } = useRoles();
-  const [tab, setTab] = useState<"dispatch" | "consult" | "team" | "jobs">("dispatch");
+  const [tab, setTab] = useState<"dispatch" | "consult" | "projects" | "team" | "jobs">("dispatch");
 
   if (loading) return <p className="p-8 text-sm text-muted-foreground">Loading…</p>;
   if (!isStaff && !isTechnician)
@@ -42,7 +42,7 @@ function DashboardPage() {
     );
 
   const tabs = [
-    ...(isStaff ? [{ id: "dispatch", label: "Dispatch" }, { id: "consult", label: "Consultations" }] : []),
+    ...(isStaff ? [{ id: "dispatch", label: "Dispatch" }, { id: "consult", label: "Consultations" }, { id: "projects", label: "Projects" }] : []),
     ...(isTechnician ? [{ id: "jobs", label: "My jobs" }] : []),
     ...(isSuperAdmin ? [{ id: "team", label: "Team & roles" }] : []),
   ] as { id: typeof tab; label: string }[];
@@ -68,6 +68,7 @@ function DashboardPage() {
       <div className="mt-6">
         {active === "dispatch" && <Dispatch />}
         {active === "consult" && <Consultations />}
+        {active === "projects" && <Projects />}
         {active === "jobs" && <Dispatch technicianOnly />}
         {active === "team" && <Team />}
       </div>
@@ -199,6 +200,32 @@ function Dispatch({ technicianOnly = false }: { technicianOnly?: boolean }) {
                   </select>
                 </label>
               )}
+              {!technicianOnly && r.customer_id && (
+                <form
+                  className="flex flex-wrap items-center gap-2"
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    const f = new FormData(e.currentTarget);
+                    const amount = Number(f.get("amount"));
+                    if (!amount || amount <= 0) { toast.error("Enter an amount"); return; }
+                    const { error } = await supabase.from("quotations").insert({
+                      request_id: r.id,
+                      customer_id: r.customer_id!,
+                      amount_usd: amount,
+                      notes: String(f.get("notes") || "") || null,
+                      created_by: user?.id ?? null,
+                    });
+                    if (error) { toast.error(error.message); return; }
+                    toast.success("Quote sent");
+                    e.currentTarget.reset();
+                    qc.invalidateQueries({ queryKey: ["dispatch"] });
+                  }}
+                >
+                  <input name="amount" type="number" min="1" placeholder="Quote USD" className={cn(selectCls, "w-28 px-3")} />
+                  <input name="notes" placeholder="Scope / notes" className={cn(selectCls, "w-44 px-3")} />
+                  <button className="min-h-[40px] rounded-lg bg-primary px-3 text-sm font-semibold text-primary-foreground">Send quote</button>
+                </form>
+              )}
             </div>
           </article>
         ))}
@@ -302,6 +329,55 @@ function Team() {
                 </button>
               );
             })}
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+}
+
+function Projects() {
+  const qc = useQueryClient();
+  const list = useQuery({
+    queryKey: ["staff-projects"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("projects")
+        .select("id,title,status,progress")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+  const update = async (id: string, patch: { status?: string; progress?: number }) => {
+    const { error } = await supabase.from("projects").update(patch).eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Updated");
+    qc.invalidateQueries({ queryKey: ["staff-projects"] });
+  };
+  return (
+    <div className="space-y-3">
+      {list.data?.length === 0 && (
+        <div className="glass rounded-2xl p-6 text-sm text-muted-foreground">No projects yet. Accepted quotes appear here.</div>
+      )}
+      {list.data?.map((p) => (
+        <article key={p.id} className="glass rounded-2xl p-5">
+          <h3 className="truncate font-bold">{p.title}</h3>
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <select className={selectCls} value={p.status} onChange={(e) => update(p.id, { status: e.target.value })}>
+              {["active", "on_hold", "completed"].map((s) => (
+                <option key={s} value={s}>{s.replace("_", " ")}</option>
+              ))}
+            </select>
+            <label className="flex items-center gap-2 text-xs text-muted-foreground">
+              Progress
+              <input
+                type="range" min={0} max={100} step={10} defaultValue={p.progress}
+                onMouseUp={(e) => update(p.id, { progress: Number(e.currentTarget.value) })}
+                onTouchEnd={(e) => update(p.id, { progress: Number(e.currentTarget.value) })}
+              />
+              {p.progress}%
+            </label>
           </div>
         </article>
       ))}

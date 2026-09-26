@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, LayoutGrid, ClipboardList, UserRound, LogIn, Gauge } from "lucide-react";
+import { Home, LayoutGrid, ClipboardList, UserRound, LogIn, Gauge, LifeBuoy } from "lucide-react";
 import { useRoles } from "@/hooks/useRoles";
 import type { ReactNode } from "react";
 import logo from "@/assets/widetech-logo.png.asset.json";
@@ -10,6 +10,7 @@ const navItems = [
   { to: "/", label: "Home", icon: Home },
   { to: "/services", label: "Services", icon: LayoutGrid },
   { to: "/requests", label: "Requests", icon: ClipboardList },
+  { to: "/support", label: "Support", icon: LifeBuoy },
   { to: "/account", label: "Account", icon: UserRound },
 ] as const;
 
@@ -18,7 +19,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const { isStaff, isTechnician } = useRoles();
   const items = isStaff || isTechnician
-    ? [...navItems.slice(0, 3), { to: "/dashboard", label: "Ops", icon: Gauge } as const, navItems[3]]
+    ? [...navItems.slice(0, 4), { to: "/dashboard", label: "Ops", icon: Gauge } as const, navItems[4]]
     : navItems;
 
   const isActive = (to: string) => (to === "/" ? pathname === "/" : pathname.startsWith(to));
