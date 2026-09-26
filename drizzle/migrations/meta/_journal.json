@@ -36,6 +36,13 @@
       "when": 1790428019819,
       "tag": "0004_services_admin_manage",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790428318990,
+      "tag": "0005_profiles_suspension",
+      "breakpoints": true
     }
   ]
 }
