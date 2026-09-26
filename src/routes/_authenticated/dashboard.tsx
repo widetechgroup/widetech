@@ -1,4 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { z } from "zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -21,8 +22,11 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
       { property: "og:description", content: "WideTech staff and technician workspace." },
     ],
   }),
+  validateSearch: (search) => z.object({ tab: z.string().optional() }).parse(search),
   component: DashboardPage,
 });
+
+export type DashTab = "overview" | "dispatch" | "consult" | "projects" | "activity" | "settings" | "team" | "jobs" | "services" | "media";
 
 const STATUSES = ["pending", "reviewing", "quoted", "in_progress", "completed", "cancelled"] as const;
 type Status = (typeof STATUSES)[number];
@@ -34,7 +38,10 @@ const selectCls =
 
 function DashboardPage() {
   const { isStaff, isSuperAdmin, isTechnician, loading } = useRoles();
-  const [tab, setTab] = useState<"overview" | "dispatch" | "consult" | "projects" | "activity" | "settings" | "team" | "jobs" | "services" | "media">("overview");
+  const search = Route.useSearch();
+  const navigate = useNavigate();
+  const tab = (search.tab ?? "overview") as DashTab;
+  const setTab = (t: DashTab) => navigate({ to: "/dashboard", search: { tab: t } });
 
   if (loading) return <p className="p-8 text-sm text-muted-foreground">Loading…</p>;
   if (!isStaff && !isTechnician)

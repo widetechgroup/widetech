@@ -76,6 +76,7 @@ function AccountPage() {
     }
     await queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
     await queryClient.invalidateQueries({ queryKey: ["my-currency", user?.id] });
+    await queryClient.invalidateQueries({ queryKey: ["shell-profile", user?.id] });
     toast.success("Profile updated");
   }
 
@@ -89,7 +90,7 @@ function AccountPage() {
         </p>
       )}
 
-      <AvatarPicker userId={user?.id} name={profile.data?.full_name ?? ""} url={profile.data?.avatar_url ?? null} onChange={() => queryClient.invalidateQueries({ queryKey: ["profile", user?.id] })} />
+      <AvatarPicker userId={user?.id} name={profile.data?.full_name ?? ""} url={profile.data?.avatar_url ?? null} onChange={() => { queryClient.invalidateQueries({ queryKey: ["profile", user?.id] }); queryClient.invalidateQueries({ queryKey: ["shell-profile", user?.id] }); }} />
 
       <form onSubmit={handleSave} className="glass mt-6 space-y-4 rounded-2xl p-6">
         <div className="space-y-1.5">
