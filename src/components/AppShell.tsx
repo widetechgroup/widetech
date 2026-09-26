@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { useCompany, usePreferredCurrency } from "@/lib/company";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { InstallApp } from "@/components/InstallApp";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 
 type NavItem = { to: "/" | "/services" | "/requests" | "/support" | "/account" | "/dashboard"; label: string; icon: LucideIcon; tab?: string };
@@ -253,10 +254,16 @@ function SidebarBody({
           </div>
         ))}
       </nav>
-      {!user && !collapsed && (
-        <div className="border-t border-border p-3">
-          <Link to="/auth" className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-primary">
-            <LogIn className="h-4 w-4" /> Sign in / Create account
+      {!collapsed && (
+        <div className="space-y-1 border-t border-border p-3">
+          {!user && (
+            <Link to="/auth" className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-primary">
+              <LogIn className="h-4 w-4" /> Sign in / Create account
+            </Link>
+          )}
+          <InstallApp compact />
+          <Link to="/privacy" className="block rounded-lg px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground">
+            Privacy policy
           </Link>
         </div>
       )}
