@@ -29,7 +29,7 @@ const selectCls =
 
 function DashboardPage() {
   const { isStaff, isSuperAdmin, isTechnician, loading } = useRoles();
-  const [tab, setTab] = useState<"dispatch" | "consult" | "projects" | "team" | "jobs">("dispatch");
+  const [tab, setTab] = useState<"dispatch" | "consult" | "projects" | "activity" | "settings" | "team" | "jobs">("dispatch");
 
   if (loading) return <p className="p-8 text-sm text-muted-foreground">Loading…</p>;
   if (!isStaff && !isTechnician)
@@ -42,9 +42,9 @@ function DashboardPage() {
     );
 
   const tabs = [
-    ...(isStaff ? [{ id: "dispatch", label: "Dispatch" }, { id: "consult", label: "Consultations" }, { id: "projects", label: "Projects" }] : []),
+    ...(isStaff ? [{ id: "dispatch", label: "Dispatch" }, { id: "consult", label: "Consultations" }, { id: "projects", label: "Projects" }, { id: "activity", label: "Activity" }] : []),
     ...(isTechnician ? [{ id: "jobs", label: "My jobs" }] : []),
-    ...(isSuperAdmin ? [{ id: "team", label: "Team & roles" }] : []),
+    ...(isSuperAdmin ? [{ id: "team", label: "Team & roles" }, { id: "settings", label: "Company settings" }] : []),
   ] as { id: typeof tab; label: string }[];
   const active = tabs.some((t) => t.id === tab) ? tab : tabs[0]!.id;
 
@@ -71,6 +71,8 @@ function DashboardPage() {
         {active === "projects" && <Projects />}
         {active === "jobs" && <Dispatch technicianOnly />}
         {active === "team" && <Team />}
+        {active === "activity" && <Activity />}
+        {active === "settings" && <Settings />}
       </div>
     </div>
   );
@@ -382,5 +384,89 @@ function Projects() {
         </article>
       ))}
     </div>
+  );
+}
+
+function Activity() {
+  const profiles = useProfiles(true);
+  const logs = useQuery({
+    queryKey: ["audit-logs"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("audit_logs")
+        .select("id,actor_id,action,table_name,details,created_at")
+        .order("created_at", { ascending: false })
+        .limit(100);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+  const who = (id: string | null) => (id ? profiles.data?.find((p) => p.id === id)?.full_name ?? "Someone" : "System");
+  const label: Record<string, string> = {
+    service_requests: "request", quotations: "quote", projects: "project", user_roles: "role", company_settings: "company settings",
+  };
+  return (
+    <div className="glass divide-y divide-border rounded-2xl">
+      {logs.data?.length === 0 && <p className="p-5 text-sm text-muted-foreground">No activity yet.</p>}
+      {logs.data?.map((l) => {
+        const d = (l.details ?? {}) as Record<string, string | null>;
+        const extra = d.role ? ` (${d.role})` : d.old_status && d.status && d.old_status !== d.status ? `: ${d.old_status} → ${d.status}` : "";
+        return (
+          <div key={l.id} className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 p-4 text-sm">
+            <p className="min-w-0">
+              <span className="font-semibold">{who(l.actor_id)}</span>{" "}
+              <span className="text-muted-foreground">{l.action}d {label[l.table_name] ?? l.table_name}{extra}</span>
+            </p>
+            <span className="text-xs text-muted-foreground">{new Date(l.created_at).toLocaleString()}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function Settings() {
+  const qc = useQueryClient();
+  const q = useQuery({
+    queryKey: ["company-settings"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("company_settings").select("*").eq("id", 1).maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+  if (!q.data) return <p className="text-sm text-muted-foreground">Loading…</p>;
+  const s = q.data;
+  const fields = [
+    ["company_name", "Company name"], ["tagline", "Tagline"], ["phone", "Phone"], ["whatsapp", "WhatsApp"],
+    ["email", "Email"], ["address", "Address"], ["usd_tzs_rate", "USD → TZS rate"],
+  ] as const;
+  return (
+    <form
+      className="glass grid gap-4 rounded-2xl p-5 md:grid-cols-2"
+      onSubmit={async (e) => {
+        e.preventDefault();
+        const f = new FormData(e.currentTarget);
+        const v = (k: string) => String(f.get(k) ?? "").trim();
+        const { error } = await supabase.from("company_settings").update({
+          company_name: v("company_name") || "WideTech Group",
+          tagline: v("tagline") || "KWETU WIDE TECH TU.",
+          phone: v("phone") || null, whatsapp: v("whatsapp") || null, email: v("email") || null, address: v("address") || null,
+          usd_tzs_rate: Number(v("usd_tzs_rate")) || 2600,
+          updated_at: new Date().toISOString(),
+        }).eq("id", 1);
+        if (error) { toast.error(error.message); return; }
+        toast.success("Settings saved");
+        qc.invalidateQueries({ queryKey: ["company-settings"] });
+      }}
+    >
+      {fields.map(([k, lbl]) => (
+        <label key={k} className="grid gap-1 text-xs text-muted-foreground">
+          {lbl}
+          <input name={k} defaultValue={String(s[k] ?? "")} className={cn(selectCls, "px-3")} />
+        </label>
+      ))}
+      <button className="min-h-[44px] rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground md:col-span-2">Save settings</button>
+    </form>
   );
 }
