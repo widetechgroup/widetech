@@ -75,6 +75,7 @@ function RequestsPage() {
       const { data, error } = await supabase
         .from("service_requests")
         .select("id,tracking_code,title,description,urgency,status,created_at,updated_at,estimated_budget,projects(progress,status)")
+        .eq("customer_id", user!.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data ?? [];
