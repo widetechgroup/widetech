@@ -3,6 +3,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import {
   Home, LayoutGrid, ClipboardList, UserRound, LogIn, Gauge, LifeBuoy, CalendarClock, FolderKanban,
   History, Wrench, Tags, Users, Image as ImageIcon, Settings, Menu, PanelLeftClose, PanelLeftOpen, type LucideIcon,
+  ShieldCheck,
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import logo from "@/assets/widetech-logo.png.asset.json";
