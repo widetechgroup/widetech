@@ -404,6 +404,50 @@ export type Database = {
           },
         ]
       }
+      request_files: {
+        Row: {
+          created_at: string
+          id: string
+          mime_type: string | null
+          name: string
+          note: string | null
+          path: string
+          request_id: string
+          sender_id: string
+          size_bytes: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mime_type?: string | null
+          name: string
+          note?: string | null
+          path: string
+          request_id: string
+          sender_id?: string
+          size_bytes?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mime_type?: string | null
+          name?: string
+          note?: string | null
+          path?: string
+          request_id?: string
+          sender_id?: string
+          size_bytes?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "request_files_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "service_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       role_permissions: {
         Row: {
           created_at: string
@@ -724,6 +768,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_access_request: { Args: { _req: string }; Returns: boolean }
       generate_tracking_code: { Args: never; Returns: string }
       has_permission: {
         Args: { _perm: string; _user_id: string }
