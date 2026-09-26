@@ -17,6 +17,7 @@ export type Database = {
       app_modules: {
         Row: {
           created_at: string
+          depends_on: string[]
           description: string | null
           display_order: number
           is_enabled: boolean
@@ -25,6 +26,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          depends_on?: string[]
           description?: string | null
           display_order?: number
           is_enabled?: boolean
@@ -33,6 +35,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          depends_on?: string[]
           description?: string | null
           display_order?: number
           is_enabled?: boolean
@@ -270,6 +273,7 @@ export type Database = {
           last_sign_in_at: string | null
           phone: string | null
           preferred_currency: string
+          primary_role: string | null
           status_reason: string | null
           suspended_at: string | null
           updated_at: string | null
@@ -294,6 +298,7 @@ export type Database = {
           last_sign_in_at?: string | null
           phone?: string | null
           preferred_currency?: string
+          primary_role?: string | null
           status_reason?: string | null
           suspended_at?: string | null
           updated_at?: string | null
@@ -318,6 +323,7 @@ export type Database = {
           last_sign_in_at?: string | null
           phone?: string | null
           preferred_currency?: string
+          primary_role?: string | null
           status_reason?: string | null
           suspended_at?: string | null
           updated_at?: string | null
@@ -487,7 +493,47 @@ export type Database = {
             referencedRelation: "permissions"
             referencedColumns: ["key"]
           },
+          {
+            foreignKeyName: "role_permissions_role_fk"
+            columns: ["role"]
+            isOneToOne: false
+            referencedRelation: "roles"
+            referencedColumns: ["key"]
+          },
         ]
+      }
+      roles: {
+        Row: {
+          audience: string
+          created_at: string
+          description: string | null
+          is_active: boolean
+          is_protected: boolean
+          key: string
+          name: string
+          role_type: string
+        }
+        Insert: {
+          audience?: string
+          created_at?: string
+          description?: string | null
+          is_active?: boolean
+          is_protected?: boolean
+          key: string
+          name: string
+          role_type?: string
+        }
+        Update: {
+          audience?: string
+          created_at?: string
+          description?: string | null
+          is_active?: boolean
+          is_protected?: boolean
+          key?: string
+          name?: string
+          role_type?: string
+        }
+        Relationships: []
       }
       service_categories: {
         Row: {
@@ -712,6 +758,42 @@ export type Database = {
             columns: ["ticket_id"]
             isOneToOne: false
             referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_custom_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role_key: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role_key: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role_key?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_custom_roles_role_key_fkey"
+            columns: ["role_key"]
+            isOneToOne: false
+            referencedRelation: "roles"
+            referencedColumns: ["key"]
+          },
+          {
+            foreignKeyName: "user_custom_roles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
