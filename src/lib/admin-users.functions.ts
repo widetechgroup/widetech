@@ -106,7 +106,7 @@ export const sendPasswordReset = createServerFn({ method: "POST" })
     const { data: u, error } = await supabaseAdmin.auth.admin.getUserById(data.userId);
     if (error || !u.user?.email) throw new Error(error?.message ?? "User has no email");
     const { createClient } = await import("@supabase/supabase-js");
-    const pub = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!, { auth: { persistSession: false, autoRefreshToken: false } });
+    const pub = createClient(process.env.SUPABASE_URL!, (process.env.SUPABASE_PUBLISHABLE_KEY ?? process.env.SUPABASE_ANON_KEY)!, { auth: { persistSession: false, autoRefreshToken: false } });
     const { error: e2 } = await pub.auth.resetPasswordForEmail(u.user.email, { redirectTo: data.redirectTo });
     if (e2) throw new Error(e2.message);
     await audit(context.userId, "password_reset_sent", data.userId, {});
