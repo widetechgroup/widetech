@@ -106,7 +106,7 @@ export const sendPasswordReset = createServerFn({ method: "POST" })
     const { data: u, error } = await supabaseAdmin.auth.admin.getUserById(data.userId);
     if (error || !u.user?.email) throw new Error(error?.message ?? "User has no email");
     const { createClient } = await import("@supabase/supabase-js");
-    const pub = createClient(process.env.SUPABASE_URL!, (process.env.SUPABASE_PUBLISHABLE_KEY ?? process.env.SUPABASE_ANON_KEY)!, { auth: { persistSession: false, autoRefreshToken: false } });
+    const pub = createClient(process.env['SUPABASE_URL']!, (process.env['SUPABASE_PUBLISHABLE_KEY'] ?? process.env['SUPABASE_ANON_KEY'])!, { auth: { persistSession: false, autoRefreshToken: false } });
     const { error: e2 } = await pub.auth.resetPasswordForEmail(u.user.email, { redirectTo: data.redirectTo });
     if (e2) throw new Error(e2.message);
     await audit(context.userId, "password_reset_sent", data.userId, {});
@@ -133,7 +133,7 @@ export const editUserProfile = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { userId, ...rest } = data;
     const clean = Object.fromEntries(Object.entries(rest).map(([k, v]) => [k, v === "" && k !== "full_name" ? null : v]));
-    const { error } = await supabaseAdmin.from("profiles").update(clean).eq("id", userId);
+    const { error } = await supabaseAdmin.from("profiles").update(clean as never).eq("id", userId);
     if (error) throw new Error(error.message.includes("username") ? "That username is taken" : error.message);
     await audit(context.userId, "edit_profile", userId, { fields: Object.keys(rest) });
     return { ok: true };
