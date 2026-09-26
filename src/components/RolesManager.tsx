@@ -112,7 +112,7 @@ export function RolesManager() {
 
       <Sheet open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <SheetContent className="w-full overflow-y-auto sm:max-w-3xl">
-          {editing && <PermissionEditor role={roles.find((r) => r.key === editing)!} modules={modules} perms={perms} granted={grants.get(editing) ?? new Set()} onSaved={() => { refresh(); setEditing(null); }} />}
+          {editing && roles.some((r) => r.key === editing) && <PermissionEditor key={editing} role={roles.find((r) => r.key === editing)!} modules={modules} perms={perms} granted={grants.get(editing) ?? new Set()} onSaved={() => { refresh(); setEditing(null); }} />}
         </SheetContent>
       </Sheet>
 
