@@ -1,6 +1,6 @@
 import { Check } from "lucide-react";
 import { featureList, tzs, usd, type Service } from "@/lib/services";
-import { useCompany } from "@/lib/company";
+import { useCompany, usePreferredCurrency } from "@/lib/company";
 
 export function ServiceCard({
   service,
@@ -9,7 +9,8 @@ export function ServiceCard({
   service: Service;
   onRequest?: (service: Service) => void;
 }) {
-  const { toTzs } = useCompany();
+  const { toTzs, toEur } = useCompany();
+  const currency = usePreferredCurrency();
   return (
     <article className="glass-interactive flex flex-col rounded-2xl p-5">
       {service.image_url && <img src={service.image_url} alt={service.title} loading="lazy" className="-mx-5 -mt-5 mb-4 aspect-video w-[calc(100%+2.5rem)] max-w-none rounded-t-2xl object-cover" />}
@@ -34,6 +35,9 @@ export function ServiceCard({
           {usd(Number(service.starting_price))}
         </p>
         <p className="text-xs text-muted-foreground">≈ {tzs(toTzs(Number(service.starting_price)))}</p>
+        {currency === "EUR" && toEur(Number(service.starting_price)) != null && (
+          <p className="text-xs text-muted-foreground">≈ EUR {toEur(Number(service.starting_price))!.toLocaleString()}</p>
+        )}
       </div>
 
       {onRequest && (

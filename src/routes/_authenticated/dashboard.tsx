@@ -392,8 +392,11 @@ function Settings() {
   if (!q.data) return <p className="text-sm text-muted-foreground">Loading…</p>;
   const s = q.data;
   const fields = [
-    ["company_name", "Company name"], ["tagline", "Tagline"], ["phone", "Phone"], ["whatsapp", "WhatsApp"],
-    ["email", "Email"], ["address", "Address"], ["usd_tzs_rate", "USD → TZS rate"],
+    ["company_name", "Company name"], ["legal_name", "Legal company name"], ["tagline", "Tagline"],
+    ["short_description", "Short description"], ["phone", "Phone"], ["whatsapp", "WhatsApp"],
+    ["email", "Email"], ["website", "Website"], ["address", "Address"], ["business_hours", "Business hours"],
+    ["tax_number", "TIN / VAT number"], ["facebook_url", "Facebook link"], ["instagram_url", "Instagram link"],
+    ["linkedin_url", "LinkedIn link"], ["usd_tzs_rate", "1 USD → TZS"], ["usd_eur_rate", "1 USD → EUR"],
   ] as const;
   return (
     <form
@@ -402,11 +405,16 @@ function Settings() {
         e.preventDefault();
         const f = new FormData(e.currentTarget);
         const v = (k: string) => String(f.get(k) ?? "").trim();
+        const o = (k: string) => v(k) || null;
         const { error } = await supabase.from("company_settings").update({
-          company_name: v("company_name") || "WideTech Group",
-          tagline: v("tagline") || "KWETU WIDE TECH TU.",
-          phone: v("phone") || null, whatsapp: v("whatsapp") || null, email: v("email") || null, address: v("address") || null,
-          usd_tzs_rate: Number(v("usd_tzs_rate")) || 2600,
+          company_name: v("company_name") || s.company_name,
+          tagline: v("tagline") || s.tagline,
+          legal_name: o("legal_name"), short_description: o("short_description"),
+          phone: o("phone"), whatsapp: o("whatsapp"), email: o("email"), address: o("address"),
+          website: o("website"), business_hours: o("business_hours"), tax_number: o("tax_number"),
+          facebook_url: o("facebook_url"), instagram_url: o("instagram_url"), linkedin_url: o("linkedin_url"),
+          usd_tzs_rate: Number(v("usd_tzs_rate")) || s.usd_tzs_rate,
+          usd_eur_rate: Number(v("usd_eur_rate")) || s.usd_eur_rate,
           updated_at: new Date().toISOString(),
         }).eq("id", 1);
         if (error) { toast.error(error.message); return; }
