@@ -10,6 +10,7 @@ import type { AppRole } from "@/hooks/useRoles";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AccessPreview, SCOPE_LABEL } from "@/components/RolesManager";
 import { listAuthMeta, createUserAccount, setAccountStatus, sendPasswordReset, editUserProfile } from "@/lib/admin-users.functions";
 
 export const ALL_ROLES: AppRole[] = ["super_admin", "admin", "operations_manager", "operator", "technician", "sales", "consultant", "support", "finance", "content_manager", "customer"];
@@ -50,6 +51,15 @@ export function UsersManager({ startCreate = false }: { startCreate?: boolean })
   const [role, setRole] = useState<AppRole | "all">("all");
   const [state, setState] = useState<AccountStatus | "all">("all");
   const [openId, setOpenId] = useState<string | null>(null);
+  const [openTab, setOpenTab] = useState<DetailTab>("overview");
+  const [picked, setPicked] = useState<Set<string>>(new Set());
+  const [bulk, setBulk] = useState<null | "role" | "status">(null);
+  const [bulkRole, setBulkRole] = useState<AppRole>("technician");
+  const [bulkStatus, setBulkStatus] = useState<AccountStatus>("active");
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const bulkStatusFn = useServerFn(setAccountStatus);
+  const togglePick = (id: string) => setPicked((c) => { const n = new Set(c); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  const openUser = (id: string, t: DetailTab = "overview") => { setOpenTab(t); setOpenId(id); };
   const [creating, setCreating] = useState(startCreate);
   const authMetaFn = useServerFn(listAuthMeta);
 
@@ -84,6 +94,38 @@ export function UsersManager({ startCreate = false }: { startCreate?: boolean })
     qc.invalidateQueries({ queryKey: ["control-center"] });
   };
 
+  const targets = () => [...picked].filter((id) => id !== user?.id);
+  const runBulk = async () => {
+    const ids = targets();
+    if (!ids.length) { toast.error("Select other users (you can't change your own account)"); return; }
+    setBulkBusy(true);
+    let ok = 0; const failed: string[] = [];
+    for (const id of ids) {
+      try {
+        if (bulk === "role") {
+          const { error } = await supabase.from("user_roles").upsert({ user_id: id, role: bulkRole }, { onConflict: "user_id,role", ignoreDuplicates: true });
+          if (error) throw error;
+        } else {
+          await bulkStatusFn({ data: { userId: id, status: bulkStatus, reason: "Bulk action" } });
+        }
+        ok++;
+      } catch { failed.push(list.data?.find((u) => u.id === id)?.full_name ?? id); }
+    }
+    setBulkBusy(false);
+    if (ok) toast.success(`Updated ${ok} user${ok === 1 ? "" : "s"}`);
+    if (failed.length) toast.error(`Failed for: ${failed.join(", ")}`);
+    setBulk(null); setPicked(new Set()); refresh();
+  };
+  const exportCsv = () => {
+    const sel = (list.data ?? []).filter((u) => picked.has(u.id));
+    const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const lines = [["Name", "Email", "Phone", "Company", "Roles", "Status", "Verified", "Created"].join(","),
+      ...sel.map((u) => [u.full_name, u.email, u.phone, u.company_name, u.roles.map(roleLabel).join("; "), STATUS_LABEL[u.account_status], u.is_verified ? "yes" : "no", u.created_at?.slice(0, 10)].map(esc).join(","))];
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([lines.join("\n")], { type: "text/csv" }));
+    a.download = `widetech-users-${new Date().toISOString().slice(0, 10)}.csv`; a.click();
+  };
+
   const counts = STATUSES.map((s) => [STATUS_LABEL[s], list.data?.filter((u) => u.account_status === s).length ?? 0] as const);
 
   return (
@@ -108,6 +150,16 @@ export function UsersManager({ startCreate = false }: { startCreate?: boolean })
         </select>
       </div>
 
+      {picked.size > 0 && (
+        <div className="glass sticky top-16 z-10 flex flex-wrap items-center gap-2 rounded-2xl p-3 text-sm">
+          <b>{picked.size} selected</b>
+          <button onClick={() => setBulk("role")} className="min-h-[36px] rounded-lg border border-border px-3 text-xs font-semibold">Assign role</button>
+          <button onClick={() => setBulk("status")} className="min-h-[36px] rounded-lg border border-border px-3 text-xs font-semibold">Change status</button>
+          <button onClick={exportCsv} className="min-h-[36px] rounded-lg border border-border px-3 text-xs font-semibold">Export</button>
+          <button onClick={() => setPicked(new Set())} className="ml-auto text-xs text-muted-foreground underline">Clear</button>
+        </div>
+      )}
+
       {list.isLoading && <p className="text-sm text-muted-foreground">Loading users…</p>}
       {!list.isLoading && rows.length === 0 && <div className="glass rounded-2xl p-6 text-sm text-muted-foreground">No users match.</div>}
 
@@ -116,11 +168,12 @@ export function UsersManager({ startCreate = false }: { startCreate?: boolean })
         <div className="glass hidden overflow-x-auto rounded-2xl md:block">
           <table className="w-full text-sm">
             <thead className="text-left text-xs text-muted-foreground">
-              <tr className="border-b border-border">{["User", "Phone", "Roles", "Status", "Last login", "Created", ""].map((h) => <th key={h} className="px-4 py-3 font-semibold">{h}</th>)}</tr>
+              <tr className="border-b border-border"><th className="w-10 px-3"><input type="checkbox" aria-label="Select all shown" checked={rows.length > 0 && rows.every((u) => picked.has(u.id))} onChange={(e) => setPicked(e.target.checked ? new Set(rows.map((u) => u.id)) : new Set())} /></th>{["User", "Phone", "Roles", "Status", "Last login", "Created", ""].map((h) => <th key={h} className="px-4 py-3 font-semibold">{h}</th>)}</tr>
             </thead>
             <tbody>
               {rows.map((u) => (
                 <tr key={u.id} className="border-b border-border/50 last:border-0 hover:bg-background/30">
+                  <td className="px-3"><input type="checkbox" aria-label={`Select ${u.full_name}`} checked={picked.has(u.id)} onChange={() => togglePick(u.id)} /></td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       <Avatar u={u} />
@@ -135,7 +188,7 @@ export function UsersManager({ startCreate = false }: { startCreate?: boolean })
                   <td className="px-4 py-3"><span className={cn("rounded-full px-2 py-0.5 text-[11px] font-semibold", STATUS_CLS[u.account_status])}>{STATUS_LABEL[u.account_status]}</span></td>
                   <td className="px-4 py-3 text-muted-foreground">{meta.isLoading ? "…" : ago(meta.data?.[u.id]?.last_sign_in_at)}</td>
                   <td className="px-4 py-3 text-muted-foreground">{u.created_at ? new Date(u.created_at).toLocaleDateString() : "—"}</td>
-                  <td className="px-4 py-3 text-right"><button onClick={() => setOpenId(u.id)} className="min-h-[36px] rounded-lg border border-border px-3 text-xs font-semibold">Manage</button></td>
+                  <td className="px-4 py-3 text-right whitespace-nowrap"><button onClick={() => openUser(u.id, "roles")} className="mr-1 min-h-[36px] rounded-lg border border-border px-3 text-xs font-semibold">Assign role</button><button onClick={() => openUser(u.id)} className="min-h-[36px] rounded-lg border border-border px-3 text-xs font-semibold">Manage</button></td>
                 </tr>
               ))}
             </tbody>
@@ -146,7 +199,7 @@ export function UsersManager({ startCreate = false }: { startCreate?: boolean })
       {/* Phone: cards */}
       <div className="space-y-2 md:hidden">
         {rows.map((u) => (
-          <button key={u.id} onClick={() => setOpenId(u.id)} className="glass flex w-full items-center gap-3 rounded-2xl p-4 text-left">
+          <button key={u.id} onClick={() => openUser(u.id)} className="glass flex w-full items-center gap-3 rounded-2xl p-4 text-left">
             <Avatar u={u} size={40} />
             <span className="min-w-0 flex-1">
               <span className="flex items-center gap-1 font-bold"><span className="truncate">{u.full_name}</span><VerifiedBadge verified={u.is_verified} /></span>
@@ -162,9 +215,26 @@ export function UsersManager({ startCreate = false }: { startCreate?: boolean })
 
       <Sheet open={!!open} onOpenChange={(o) => !o && setOpenId(null)}>
         <SheetContent className="w-full overflow-y-auto sm:max-w-lg">
-          {open && <UserDetail u={open} isSelf={open.id === user?.id} lastSignIn={meta.data?.[open.id]?.last_sign_in_at ?? null} onChanged={refresh} />}
+          {open && <UserDetail key={open.id + openTab} startTab={openTab} u={open} isSelf={open.id === user?.id} lastSignIn={meta.data?.[open.id]?.last_sign_in_at ?? null} onChanged={refresh} />}
         </SheetContent>
       </Sheet>
+
+      <Dialog open={!!bulk} onOpenChange={(o) => !o && setBulk(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader><DialogTitle>{bulk === "role" ? "Assign role to several users" : "Change status of several users"}</DialogTitle></DialogHeader>
+          {bulk === "role"
+            ? <select className={inputCls} value={bulkRole} onChange={(e) => setBulkRole(e.target.value as AppRole)} aria-label="Role">{ALL_ROLES.filter((r) => r !== "super_admin").map((r) => <option key={r} value={r}>{roleLabel(r)}</option>)}</select>
+            : <select className={inputCls} value={bulkStatus} onChange={(e) => setBulkStatus(e.target.value as AccountStatus)} aria-label="Status">{STATUSES.map((s) => <option key={s} value={s}>{STATUS_LABEL[s]}</option>)}</select>}
+          <p className="rounded-lg bg-muted p-3 text-sm">
+            You are about to {bulk === "role" ? <>give the <b>{roleLabel(bulkRole)}</b> role to</> : <>set <b>{STATUS_LABEL[bulkStatus]}</b> on</>} <b>{targets().length}</b> user{targets().length === 1 ? "" : "s"}.
+            {picked.has(user?.id ?? "") && " Your own account is skipped."} Each change is recorded separately in the activity log.
+          </p>
+          <div className="flex gap-2">
+            <button onClick={() => setBulk(null)} className="min-h-[44px] flex-1 rounded-lg border border-border text-sm font-semibold">Cancel</button>
+            <button disabled={bulkBusy} onClick={runBulk} className="min-h-[44px] flex-1 rounded-lg bg-primary text-sm font-semibold text-primary-foreground disabled:opacity-50">{bulkBusy ? "Working…" : "Confirm"}</button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={creating} onOpenChange={setCreating}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
@@ -244,10 +314,10 @@ function CreateUserForm({ onDone }: { onDone: () => void }) {
   );
 }
 
-type DetailTab = "overview" | "profile" | "roles" | "activity" | "requests" | "security";
+type DetailTab = "overview" | "profile" | "roles" | "access" | "activity" | "requests" | "security";
 
-function UserDetail({ u, isSelf, lastSignIn, onChanged }: { u: UserRow; isSelf: boolean; lastSignIn: string | null; onChanged: () => void }) {
-  const [tab, setTab] = useState<DetailTab>("overview");
+function UserDetail({ u, isSelf, lastSignIn, onChanged, startTab = "overview" }: { u: UserRow; isSelf: boolean; lastSignIn: string | null; onChanged: () => void; startTab?: DetailTab }) {
+  const [tab, setTab] = useState<DetailTab>(startTab);
   const statusFn = useServerFn(setAccountStatus);
   const resetFn = useServerFn(sendPasswordReset);
   const editFn = useServerFn(editUserProfile);
@@ -305,7 +375,7 @@ function UserDetail({ u, isSelf, lastSignIn, onChanged }: { u: UserRow; isSelf: 
     run(() => editFn({ data: { userId: u.id, ...f } as never }), "Profile saved");
   };
 
-  const tabs: DetailTab[] = ["overview", "profile", "roles", "activity", "requests", "security"];
+  const tabs: DetailTab[] = ["overview", "profile", "roles", "access", "activity", "requests", "security"];
 
   return (
     <>
@@ -345,6 +415,7 @@ function UserDetail({ u, isSelf, lastSignIn, onChanged }: { u: UserRow; isSelf: 
           </form>
         )}
 
+        {tab === "access" && <UserAccess u={u} isSelf={isSelf} />}
         {tab === "roles" && (
           <AssignRoles u={u} isSelf={isSelf} onToggleSystem={toggleRole} onChanged={onChanged} />
 
@@ -477,6 +548,93 @@ function AssignRoles({ u, isSelf, onToggleSystem, onChanged }: { u: UserRow; isS
         )}
       </div>
       <p className="text-[11px] text-muted-foreground">Their access is the combination of every active role they hold.</p>
+    </div>
+  );
+}
+
+/** Effective access preview + temporary permissions for one person. */
+function UserAccess({ u, isSelf }: { u: UserRow; isSelf: boolean }) {
+  const { user } = useAuth();
+  const qc = useQueryClient();
+  const data = useQuery({
+    queryKey: ["user-access", u.id],
+    queryFn: async () => {
+      const [eff, mods, perms, gr] = await Promise.all([
+        supabase.rpc("preview_user_permissions", { _user_id: u.id }),
+        supabase.from("app_modules").select("key,name,is_enabled").order("display_order"),
+        supabase.from("permissions").select("key,description").order("key"),
+        supabase.from("user_permission_grants").select("*").eq("user_id", u.id).order("created_at", { ascending: false }),
+      ]);
+      if (eff.error) throw eff.error;
+      return { eff: eff.data ?? [], modules: mods.data ?? [], perms: perms.data ?? [], grants: gr.data ?? [] };
+    },
+  });
+  const today = new Date().toISOString().slice(0, 10);
+  const [perm, setPerm] = useState("");
+  const [start, setStart] = useState(today);
+  const [end, setEnd] = useState("");
+  const [reason, setReason] = useState("");
+  const [busy, setBusy] = useState(false);
+  const reload = () => qc.invalidateQueries({ queryKey: ["user-access", u.id] });
+
+  const grant = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!perm || !end || !reason.trim()) { toast.error("Pick a permission, an end date and a reason"); return; }
+    const s = new Date(`${start}T00:00:00`), en = new Date(`${end}T23:59:59`);
+    if (en <= s) { toast.error("End date must be after the start date"); return; }
+    setBusy(true);
+    const { error } = await supabase.from("user_permission_grants").insert({ user_id: u.id, permission_key: perm, starts_at: s.toISOString(), ends_at: en.toISOString(), reason: reason.trim(), granted_by: user!.id });
+    setBusy(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Temporary permission granted"); setPerm(""); setEnd(""); setReason(""); reload();
+  };
+  const revoke = async (id: string) => {
+    const { error } = await supabase.from("user_permission_grants").update({ revoked_at: new Date().toISOString(), revoked_by: user!.id }).eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Revoked"); reload();
+  };
+
+  if (data.isLoading) return <p className="text-sm text-muted-foreground">Loading…</p>;
+  if (data.error || !data.data) return <p className="text-sm text-destructive">Couldn't load access.</p>;
+  const now = Date.now();
+  const stateOf = (g: { revoked_at: string | null; starts_at: string; ends_at: string }) =>
+    g.revoked_at ? "Revoked" : now < +new Date(g.starts_at) ? "Scheduled" : now >= +new Date(g.ends_at) ? "Expired" : "Active";
+
+  return (
+    <div className="space-y-6">
+      <section>
+        <h3 className="mb-2 text-sm font-bold">What {u.full_name} can reach right now</h3>
+        <AccessPreview modules={data.data.modules} perms={data.data.eff as { permission_key: string; scope: string }[]} />
+      </section>
+
+      <section className="space-y-3">
+        <h3 className="text-sm font-bold">Temporary permissions</h3>
+        {isSelf ? <p className="text-xs text-muted-foreground">You can't grant permissions to yourself.</p> : (
+          <form onSubmit={grant} className="space-y-2 rounded-xl border border-border p-3">
+            <select className={inputCls} value={perm} onChange={(e) => setPerm(e.target.value)} aria-label="Permission">
+              <option value="">Choose a permission…</option>
+              {data.data.perms.map((p) => <option key={p.key} value={p.key}>{p.key}{p.description ? ` — ${p.description}` : ""}</option>)}
+            </select>
+            <div className="grid grid-cols-2 gap-2">
+              <label className="text-xs text-muted-foreground">Start<input type="date" className={inputCls} value={start} min={today} onChange={(e) => setStart(e.target.value)} /></label>
+              <label className="text-xs text-muted-foreground">End<input type="date" className={inputCls} value={end} min={start} onChange={(e) => setEnd(e.target.value)} /></label>
+            </div>
+            <input className={inputCls} placeholder="Reason (required)" value={reason} onChange={(e) => setReason(e.target.value)} maxLength={300} />
+            <button disabled={busy} className="min-h-[44px] w-full rounded-lg bg-primary text-sm font-semibold text-primary-foreground disabled:opacity-50">Grant temporarily</button>
+            <p className="text-[11px] text-muted-foreground">It switches off by itself after the end date.</p>
+          </form>
+        )}
+        <ul className="space-y-2">
+          {data.data.grants.map((g) => { const st = stateOf(g); return (
+            <li key={g.id} className="rounded-xl border border-border/60 p-3 text-xs">
+              <div className="flex items-center justify-between gap-2"><b className="text-sm">{g.permission_key}</b><span className="rounded-full border border-border px-2 py-0.5">{st}</span></div>
+              <p className="mt-1 text-muted-foreground">{new Date(g.starts_at).toLocaleDateString()} → {new Date(g.ends_at).toLocaleDateString()} · {SCOPE_LABEL[g.scope] ?? g.scope}</p>
+              <p className="text-muted-foreground">Reason: {g.reason}</p>
+              {(st === "Active" || st === "Scheduled") && <button onClick={() => revoke(g.id)} className="mt-2 text-destructive underline">Revoke now</button>}
+            </li>); })}
+          {data.data.grants.length === 0 && <li className="text-xs text-muted-foreground">None yet.</li>}
+        </ul>
+      </section>
     </div>
   );
 }
