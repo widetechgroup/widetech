@@ -35,7 +35,7 @@ export function ServicesManager() {
 
   const toggle = async (r: Row) => {
     const { error } = await supabase.from("services").update({ is_active: !r.is_active }).eq("id", r.id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success(r.is_active ? "Hidden from website" : "Shown on website");
     refresh();
   };
@@ -103,7 +103,7 @@ function ServiceForm({ row, onDone }: { row: Row | null; onDone: () => void }) {
           ? await supabase.from("services").update(payload).eq("id", row.id)
           : await supabase.from("services").insert(payload);
         setSaving(false);
-        if (error) return toast.error(error.message);
+        if (error) { toast.error(error.message); return; }
         toast.success("Service saved — the website is updated");
         onDone();
       }}
