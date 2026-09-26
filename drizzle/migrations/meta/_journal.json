@@ -99,6 +99,13 @@
       "when": 1790433594025,
       "tag": "0013_account_status",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1790433888847,
+      "tag": "0014_roles_management",
+      "breakpoints": true
     }
   ]
 }
