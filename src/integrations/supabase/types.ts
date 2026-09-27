@@ -922,6 +922,23 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_list_sessions: {
+        Args: never
+        Returns: {
+          created_at: string
+          id: string
+          ip: string
+          not_after: string
+          refreshed_at: string
+          updated_at: string
+          user_agent: string
+          user_id: string
+        }[]
+      }
+      admin_revoke_sessions: {
+        Args: { _session_id?: string; _user_id?: string }
+        Returns: number
+      }
       can_access_request: { Args: { _req: string }; Returns: boolean }
       effective_permissions: {
         Args: { _user_id: string }

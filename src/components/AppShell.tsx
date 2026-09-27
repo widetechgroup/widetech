@@ -6,6 +6,7 @@ import {
   ShieldCheck,
   KeyRound,
 } from "lucide-react";
+import { Activity, ShieldAlert, MonitorSmartphone } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import logo from "@/assets/widetech-logo.png.asset.json";
 import { useRoles } from "@/hooks/useRoles";
@@ -52,6 +53,14 @@ function useNavGroups(): NavGroup[] {
         { to: "/dashboard", tab: "roles", label: "Roles & permissions", icon: KeyRound },
         { to: "/dashboard", tab: "media", label: "Media", icon: ImageIcon },
         { to: "/dashboard", tab: "settings", label: "Branding & settings", icon: Settings },
+      ],
+    });
+    groups.push({
+      title: "Security",
+      items: [
+        { to: "/dashboard", tab: "center", label: "Activity center", icon: Activity },
+        { to: "/dashboard", tab: "security", label: "Security log", icon: ShieldAlert },
+        { to: "/dashboard", tab: "sessions", label: "Active sessions", icon: MonitorSmartphone },
       ],
     });
   }
