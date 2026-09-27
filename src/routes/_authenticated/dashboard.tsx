@@ -15,6 +15,7 @@ import { UsersManager } from "@/components/UsersManager";
 import { MediaManager } from "@/components/MediaManager";
 import { ControlCenter } from "@/components/ControlCenter";
 import { RolesManager } from "@/components/RolesManager";
+import { SecurityCenter } from "@/components/SecurityCenter";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -29,7 +30,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   component: DashboardPage,
 });
 
-export type DashTab = "overview" | "dispatch" | "consult" | "projects" | "activity" | "settings" | "team" | "jobs" | "services" | "media" | "control" | "roles";
+export type DashTab = "overview" | "dispatch" | "consult" | "projects" | "activity" | "settings" | "team" | "jobs" | "services" | "media" | "control" | "roles" | "center" | "security" | "sessions";
 
 const STATUSES = ["pending", "reviewing", "quoted", "in_progress", "completed", "cancelled"] as const;
 type Status = (typeof STATUSES)[number];
@@ -59,7 +60,7 @@ function DashboardPage() {
   const tabs = [
     ...(isStaff ? [{ id: "overview", label: "Overview" }, { id: "dispatch", label: "Dispatch" }, { id: "consult", label: "Consultations" }, { id: "projects", label: "Projects" }, { id: "activity", label: "Activity" }] : []),
     ...(isTechnician ? [{ id: "jobs", label: "My jobs" }] : []),
-    ...(isSuperAdmin ? [{ id: "control", label: "Control Center" }, { id: "services", label: "Services & prices" }, { id: "team", label: "Users" }, { id: "roles", label: "Roles & permissions" }, { id: "media", label: "Media" }, { id: "settings", label: "Company settings" }] : []),
+    ...(isSuperAdmin ? [{ id: "control", label: "Control Center" }, { id: "services", label: "Services & prices" }, { id: "team", label: "Users" }, { id: "roles", label: "Roles & permissions" }, { id: "media", label: "Media" }, { id: "settings", label: "Company settings" }, { id: "center", label: "Activity center" }, { id: "security", label: "Security log" }, { id: "sessions", label: "Active sessions" }] : []),
   ] as { id: typeof tab; label: string }[];
   const active = tabs.some((t) => t.id === tab) ? tab : tabs[0]!.id;
 
@@ -89,6 +90,9 @@ function DashboardPage() {
         {active === "team" && <UsersManager startCreate={search.create === "1"} />}
         {active === "roles" && <RolesManager />}
         {active === "control" && <ControlCenter onNavigate={setTab} />}
+        {active === "center" && <SecurityCenter view="activity" />}
+        {active === "security" && <SecurityCenter view="security" />}
+        {active === "sessions" && <SecurityCenter view="sessions" />}
         {active === "activity" && <Activity />}
         {active === "settings" && <Settings />}
         {active === "services" && <ServicesManager />}

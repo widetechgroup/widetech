@@ -54,6 +54,14 @@ function useNavGroups(): NavGroup[] {
         { to: "/dashboard", tab: "settings", label: "Branding & settings", icon: Settings },
       ],
     });
+    groups.push({
+      title: "Security",
+      items: [
+        { to: "/dashboard", tab: "center", label: "Activity center", icon: Activity },
+        { to: "/dashboard", tab: "security", label: "Security log", icon: ShieldAlert },
+        { to: "/dashboard", tab: "sessions", label: "Active sessions", icon: MonitorSmartphone },
+      ],
+    });
   }
   const isCustomerOnly = !isStaff && !isTechnician;
   groups.unshift({
