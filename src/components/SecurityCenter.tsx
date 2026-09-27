@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { LogOut, RefreshCw, Search } from "lucide-react";
 
-type Log = { id: string; actor_id: string | null; action: string; table_name: string; record_id: string | null; details: Record<string, unknown> | null; created_at: string };
+type Log = { id: string; actor_id: string | null; action: string; table_name: string; record_id: string | null; details: Det | null; created_at: string };
+type Det = { user_id?: string; role?: string; status?: string; old_status?: string; count?: number; previous?: Record<string, unknown>; new?: Record<string, unknown> };
 type Prof = { id: string; full_name: string; email: string };
 type Session = { id: string; user_id: string; created_at: string; updated_at: string | null; refreshed_at: string | null; user_agent: string | null; ip: string | null; not_after: string | null };
 
@@ -143,7 +144,7 @@ function AuditLog({ securityOnly }: { securityOnly: boolean }) {
       </div>
       <div className="space-y-2">
         {rows.map((l) => {
-          const d = l.details ?? {};
+          const d: Det = l.details ?? {};
           const prev = d.previous as Record<string, unknown> | undefined;
           const next = d.new as Record<string, unknown> | undefined;
           const isRole = ["user_roles", "user_custom_roles"].includes(l.table_name);
