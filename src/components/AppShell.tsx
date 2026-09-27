@@ -6,6 +6,7 @@ import {
   ShieldCheck,
   KeyRound,
 } from "lucide-react";
+import { Activity, ShieldAlert, MonitorSmartphone } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import logo from "@/assets/widetech-logo.png.asset.json";
 import { useRoles } from "@/hooks/useRoles";
