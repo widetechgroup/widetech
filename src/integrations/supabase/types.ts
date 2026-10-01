@@ -184,6 +184,194 @@ export type Database = {
           },
         ]
       }
+      cyber_service_categories: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          display_order: number
+          id: string
+          is_active: boolean
+          name: string
+          slug: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          name: string
+          slug: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          name?: string
+          slug?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      cyber_service_packages: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          currency: string
+          description: string | null
+          display_order: number
+          id: string
+          includes: Json
+          is_active: boolean
+          is_featured: boolean
+          name: string
+          price: number | null
+          pricing_model: string
+          slug: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          includes?: Json
+          is_active?: boolean
+          is_featured?: boolean
+          name: string
+          price?: number | null
+          pricing_model?: string
+          slug: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          includes?: Json
+          is_active?: boolean
+          is_featured?: boolean
+          name?: string
+          price?: number | null
+          pricing_model?: string
+          slug?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      cyber_services: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          created_by: string | null
+          currency: string
+          deliverables: Json
+          delivery_method: string
+          display_order: number
+          estimated_duration: string | null
+          features: Json
+          full_description: string
+          icon: string
+          id: string
+          image_url: string | null
+          is_featured: boolean
+          is_public: boolean
+          meta_description: string | null
+          name: string
+          price: number | null
+          pricing_model: string
+          seo_title: string | null
+          short_description: string
+          show_price: boolean
+          slug: string
+          status: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          deliverables?: Json
+          delivery_method?: string
+          display_order?: number
+          estimated_duration?: string | null
+          features?: Json
+          full_description?: string
+          icon?: string
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean
+          is_public?: boolean
+          meta_description?: string | null
+          name: string
+          price?: number | null
+          pricing_model?: string
+          seo_title?: string | null
+          short_description?: string
+          show_price?: boolean
+          slug: string
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          deliverables?: Json
+          delivery_method?: string
+          display_order?: number
+          estimated_duration?: string | null
+          features?: Json
+          full_description?: string
+          icon?: string
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean
+          is_public?: boolean
+          meta_description?: string | null
+          name?: string
+          price?: number | null
+          pricing_model?: string
+          seo_title?: string | null
+          short_description?: string
+          show_price?: boolean
+          slug?: string
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cyber_services_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "cyber_service_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       media_assets: {
         Row: {
           created_at: string
