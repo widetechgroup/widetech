@@ -33,7 +33,7 @@ export const Route = createFileRoute("/services/$slug")({
     };
   },
   errorComponent: ({ error }) => (
-    <div className="mx-auto max-w-xl p-8 text-sm text-destructive">Couldn't load this service: {error.message}</div>
+    <div className="mx-auto max-w-xl p-8 text-sm text-destructive">Couldn't load this service: {error instanceof Error ? error.message : "Unknown error"}</div>
   ),
   notFoundComponent: ServiceNotFound,
   component: ServiceDetail,
