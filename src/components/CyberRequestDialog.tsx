@@ -28,7 +28,10 @@ export function CyberRequestDialog({ open, onOpenChange, itemName }: { open: boo
     const f = new FormData(e.currentTarget);
     const concern = String(f.get("concern") ?? "").trim().slice(0, 200);
     const details = String(f.get("details") ?? "").trim().slice(0, 4000);
-    if (!concern || !details) return toast.error("Please describe your concern");
+    if (!concern || !details) {
+      toast.error("Please describe your concern");
+      return;
+    }
     const extra = [
       `Organization: ${String(f.get("org") ?? "").slice(0, 150) || "—"}`,
       `Organization type: ${f.get("org_type")}`,
