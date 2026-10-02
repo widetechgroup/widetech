@@ -49,6 +49,7 @@ function useNavGroups(): NavGroup[] {
       items: [
         { to: "/dashboard", tab: "control", label: "Control Center", icon: ShieldCheck },
         { to: "/dashboard", tab: "services", label: "Services & prices", icon: Tags },
+        { to: "/dashboard", tab: "cyber", label: "Cyber security", icon: ShieldAlert },
         { to: "/dashboard", tab: "team", label: "Users", icon: Users },
         { to: "/dashboard", tab: "roles", label: "Roles & permissions", icon: KeyRound },
         { to: "/dashboard", tab: "media", label: "Media", icon: ImageIcon },
