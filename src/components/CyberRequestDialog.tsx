@@ -50,7 +50,7 @@ export function CyberRequestDialog({ open, onOpenChange, itemName }: { open: boo
       .select("tracking_code")
       .single();
     setSaving(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success(`Request sent — tracking code ${data.tracking_code}`);
     onOpenChange(false);
     navigate({ to: "/requests" });
