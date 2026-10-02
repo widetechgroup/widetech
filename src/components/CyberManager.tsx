@@ -96,7 +96,8 @@ function Editor({ kind, row, categories, onClose, onSaved }: {
   kind: "services" | "categories" | "packages"; row: Record<string, unknown> | null; categories: CyberCategory[]; onClose: () => void; onSaved: () => void;
 }) {
   const [saving, setSaving] = useState(false);
-  const r = (row ?? {}) as Record<string, any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const r: any = row ?? {};
   const chk = (n: string, label: string, def: boolean) => (
     <label className="flex items-center gap-2 text-sm"><input type="checkbox" name={n} defaultChecked={r[n] ?? def} /> {label}</label>
   );
