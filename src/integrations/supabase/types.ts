@@ -184,6 +184,44 @@ export type Database = {
           },
         ]
       }
+      cyber_request_events: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          from_status: string | null
+          id: string
+          note: string | null
+          request_id: string
+          to_status: string
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          note?: string | null
+          request_id: string
+          to_status: string
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          note?: string | null
+          request_id?: string
+          to_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cyber_request_events_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "cyber_service_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cyber_service_categories: {
         Row: {
           created_at: string
@@ -276,6 +314,128 @@ export type Database = {
           updated_by?: string | null
         }
         Relationships: []
+      }
+      cyber_service_requests: {
+        Row: {
+          additional_info: string | null
+          application_name: string | null
+          asset_count: number | null
+          assigned_to: string | null
+          created_at: string
+          created_by: string | null
+          customer_id: string
+          customer_name: string
+          description: string
+          domain_name: string | null
+          email: string
+          id: string
+          internal_notes: string | null
+          item_name: string
+          organization: string | null
+          organization_type: string
+          package_id: string | null
+          phone: string | null
+          preferred_date: string | null
+          preferred_method: string
+          priority: string
+          request_code: string
+          security_concern: string
+          service_id: string | null
+          status: string
+          updated_at: string
+          updated_by: string | null
+          website_url: string | null
+        }
+        Insert: {
+          additional_info?: string | null
+          application_name?: string | null
+          asset_count?: number | null
+          assigned_to?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_id: string
+          customer_name: string
+          description: string
+          domain_name?: string | null
+          email: string
+          id?: string
+          internal_notes?: string | null
+          item_name: string
+          organization?: string | null
+          organization_type?: string
+          package_id?: string | null
+          phone?: string | null
+          preferred_date?: string | null
+          preferred_method?: string
+          priority?: string
+          request_code: string
+          security_concern: string
+          service_id?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+          website_url?: string | null
+        }
+        Update: {
+          additional_info?: string | null
+          application_name?: string | null
+          asset_count?: number | null
+          assigned_to?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string
+          customer_name?: string
+          description?: string
+          domain_name?: string | null
+          email?: string
+          id?: string
+          internal_notes?: string | null
+          item_name?: string
+          organization?: string | null
+          organization_type?: string
+          package_id?: string | null
+          phone?: string | null
+          preferred_date?: string | null
+          preferred_method?: string
+          priority?: string
+          request_code?: string
+          security_concern?: string
+          service_id?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+          website_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cyber_service_requests_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cyber_service_requests_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cyber_service_requests_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "cyber_service_packages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cyber_service_requests_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "cyber_services"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       cyber_services: {
         Row: {
