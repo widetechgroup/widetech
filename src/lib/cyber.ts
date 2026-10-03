@@ -45,3 +45,11 @@ export const publicCyberQuery = queryOptions({
     return { categories: c.data ?? [], services: s.data ?? [], packages: p.data ?? [] };
   },
 });
+
+export const CYBER_STATUS: Record<string, string> = {
+  new: "New", under_review: "Under review", client_contacted: "Client contacted", scoping: "Scoping",
+  quote_prepared: "Quote prepared", approved: "Approved", scheduled: "Scheduled", in_progress: "In progress",
+  quality_review: "Quality review", report_prepared: "Report prepared", client_delivery: "Delivered to client",
+  completed: "Completed", closed: "Closed", cancelled: "Cancelled",
+};
+export const CYBER_STEPS = Object.keys(CYBER_STATUS).filter((s) => s !== "cancelled");
