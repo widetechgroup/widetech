@@ -40,6 +40,7 @@ export function CyberRequestDialog({ open, onOpenChange, itemName, serviceId, pa
       .from("cyber_service_requests")
       .insert({
         customer_id: user.id,
+        request_code: "", // replaced by the database
         service_id: serviceId ?? null,
         package_id: packageId ?? null,
         item_name: itemName.slice(0, 200),

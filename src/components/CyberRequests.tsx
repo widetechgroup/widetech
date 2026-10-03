@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { CYBER_STATUS, CYBER_STEPS } from "@/lib/cyber";
 import { cn } from "@/lib/utils";
+import type { TablesUpdate } from "@/integrations/supabase/types";
 
 const sel = "min-h-[40px] rounded-lg border border-border bg-background/60 px-2 text-sm text-foreground";
 
@@ -102,7 +103,7 @@ export function CyberRequestsBoard() {
     },
   });
 
-  async function update(id: string, patch: Record<string, unknown>) {
+  async function update(id: string, patch: TablesUpdate<"cyber_service_requests">) {
     const { error } = await supabase.from("cyber_service_requests").update(patch).eq("id", id);
     if (error) { toast.error(error.message); return; }
     toast.success("Saved");
