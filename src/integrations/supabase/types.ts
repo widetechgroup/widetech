@@ -184,6 +184,163 @@ export type Database = {
           },
         ]
       }
+      cyber_assets: {
+        Row: {
+          asset_type: string
+          created_at: string
+          created_by: string | null
+          criticality: string
+          customer_id: string
+          environment: string
+          id: string
+          name: string
+          notes: string | null
+          owner: string | null
+          project_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          asset_type?: string
+          created_at?: string
+          created_by?: string | null
+          criticality?: string
+          customer_id: string
+          environment?: string
+          id?: string
+          name: string
+          notes?: string | null
+          owner?: string | null
+          project_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          asset_type?: string
+          created_at?: string
+          created_by?: string | null
+          criticality?: string
+          customer_id?: string
+          environment?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          owner?: string | null
+          project_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cyber_assets_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cyber_assets_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "cyber_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cyber_projects: {
+        Row: {
+          actual_end: string | null
+          created_at: string
+          created_by: string | null
+          customer_id: string
+          deliverables: string | null
+          expected_end: string | null
+          id: string
+          manager_id: string | null
+          name: string
+          notes: string | null
+          objectives: string | null
+          priority: string
+          progress: number
+          project_code: string
+          request_id: string | null
+          scope: string | null
+          service_type: string | null
+          start_date: string | null
+          status: string
+          team: string[]
+          updated_at: string
+        }
+        Insert: {
+          actual_end?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_id: string
+          deliverables?: string | null
+          expected_end?: string | null
+          id?: string
+          manager_id?: string | null
+          name: string
+          notes?: string | null
+          objectives?: string | null
+          priority?: string
+          progress?: number
+          project_code: string
+          request_id?: string | null
+          scope?: string | null
+          service_type?: string | null
+          start_date?: string | null
+          status?: string
+          team?: string[]
+          updated_at?: string
+        }
+        Update: {
+          actual_end?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string
+          deliverables?: string | null
+          expected_end?: string | null
+          id?: string
+          manager_id?: string | null
+          name?: string
+          notes?: string | null
+          objectives?: string | null
+          priority?: string
+          progress?: number
+          project_code?: string
+          request_id?: string | null
+          scope?: string | null
+          service_type?: string | null
+          start_date?: string | null
+          status?: string
+          team?: string[]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cyber_projects_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cyber_projects_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cyber_projects_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "cyber_service_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cyber_request_events: {
         Row: {
           actor_id: string | null

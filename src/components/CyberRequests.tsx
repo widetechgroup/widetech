@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { convertRequestToProject } from "@/components/CyberProjects";
 import { CYBER_STATUS, CYBER_STEPS } from "@/lib/cyber";
 import { cn } from "@/lib/utils";
 import type { TablesUpdate } from "@/integrations/supabase/types";
@@ -143,6 +144,9 @@ export function CyberRequestsBoard() {
               {q.data!.staff.map(([id, name]) => <option key={id} value={id}>{name}</option>)}
             </select>
           </div>
+          {["approved", "scheduled"].includes(r.status) && (
+            <Button size="sm" variant="outline" className="mt-3 mr-3" onClick={async () => { if (await convertRequestToProject(r)) qc.invalidateQueries({ queryKey: ["cyber-projects"] }); }}>Create project</Button>
+          )}
           <button onClick={() => setOpen(open === r.id ? null : r.id)} className="mt-3 text-xs font-semibold text-primary">{open === r.id ? "Hide details" : "Details & history"}</button>
           {open === r.id && (
             <div className="mt-3 space-y-2 text-sm">

@@ -10,6 +10,7 @@ import { ConsultationDialog } from "@/components/ConsultationDialog";
 import { cn } from "@/lib/utils";
 import { QuotesProjects } from "@/components/QuotesProjects";
 import { MyCyberRequests } from "@/components/CyberRequests";
+import { MyCyberProjects } from "@/components/CyberProjects";
 
 export const Route = createFileRoute("/_authenticated/requests")({
   head: () => ({
@@ -200,6 +201,7 @@ function RequestsPage() {
       </section>
 
       <MyCyberRequests />
+      <MyCyberProjects />
       <QuotesProjects />
 
       <RequestDialog open={requestOpen} onOpenChange={setRequestOpen} services={services} />
