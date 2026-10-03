@@ -27,7 +27,7 @@ export const Route = createFileRoute("/cyber-security")({
 function CyberPage() {
   const { data } = useSuspenseQuery(publicCyberQuery);
   const [cat, setCat] = useState<string>("all");
-  const [req, setReq] = useState<string | null>(null);
+  const [req, setReq] = useState<{ name: string; serviceId?: string; packageId?: string } | null>(null);
   const catName = (id: string | null) => data.categories.find((c) => c.id === id)?.name ?? "";
   const usedCats = data.categories.filter((c) => data.services.some((s) => s.category_id === c.id));
   const list = cat === "all" ? data.services : data.services.filter((s) => s.category_id === cat);
@@ -50,7 +50,7 @@ function CyberPage() {
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {list.length === 0 && <div className="glass col-span-full rounded-2xl p-6 text-sm text-muted-foreground">Cyber security services are being prepared. Ask for one of the packages below, or contact us for a custom quote.</div>}
-        {list.map((s) => <ServiceTile key={s.id} s={s} category={catName(s.category_id)} onRequest={() => setReq(s.name)} />)}
+        {list.map((s) => <ServiceTile key={s.id} s={s} category={catName(s.category_id)} onRequest={() => setReq({ name: s.name, serviceId: s.id })} />)}
       </div>
 
       {data.packages.length > 0 && (
@@ -65,13 +65,13 @@ function CyberPage() {
                 <ul className="mt-3 flex-1 space-y-1 text-sm">
                   {asList(p.includes).map((i) => <li key={i} className="flex gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />{i}</li>)}
                 </ul>
-                <Button className="mt-4" onClick={() => setReq(p.name)}>Request this package</Button>
+                <Button className="mt-4" onClick={() => setReq({ name: p.name, packageId: p.id })}>Request this package</Button>
               </div>
             ))}
           </div>
         </>
       )}
-      <CyberRequestDialog open={!!req} onOpenChange={(o) => !o && setReq(null)} itemName={req ?? ""} />
+      <CyberRequestDialog open={!!req} onOpenChange={(o) => !o && setReq(null)} itemName={req?.name ?? ""} serviceId={req?.serviceId} packageId={req?.packageId} />
     </div>
   );
 }
