@@ -184,6 +184,88 @@ export type Database = {
           },
         ]
       }
+      cyber_assessments: {
+        Row: {
+          analyst_id: string | null
+          assessment_type: string
+          created_at: string
+          created_by: string | null
+          customer_id: string
+          end_date: string | null
+          executive_summary: string | null
+          id: string
+          methodology: string | null
+          name: string
+          project_id: string | null
+          recommendations: string | null
+          scope: string | null
+          start_date: string | null
+          status: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          analyst_id?: string | null
+          assessment_type?: string
+          created_at?: string
+          created_by?: string | null
+          customer_id: string
+          end_date?: string | null
+          executive_summary?: string | null
+          id?: string
+          methodology?: string | null
+          name: string
+          project_id?: string | null
+          recommendations?: string | null
+          scope?: string | null
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          analyst_id?: string | null
+          assessment_type?: string
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string
+          end_date?: string | null
+          executive_summary?: string | null
+          id?: string
+          methodology?: string | null
+          name?: string
+          project_id?: string | null
+          recommendations?: string | null
+          scope?: string | null
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cyber_assessments_analyst_id_fkey"
+            columns: ["analyst_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cyber_assessments_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cyber_assessments_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "cyber_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cyber_assets: {
         Row: {
           asset_type: string
@@ -243,6 +325,97 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "cyber_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cyber_findings: {
+        Row: {
+          assessment_id: string | null
+          asset_id: string | null
+          business_impact: string | null
+          created_at: string
+          created_by: string | null
+          customer_id: string
+          description: string | null
+          due_date: string | null
+          evidence_ref: string | null
+          finding_code: string
+          id: string
+          remediation: string | null
+          resolution_notes: string | null
+          responsible: string | null
+          risk_level: string
+          status: string
+          technical_impact: string | null
+          title: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          assessment_id?: string | null
+          asset_id?: string | null
+          business_impact?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_id: string
+          description?: string | null
+          due_date?: string | null
+          evidence_ref?: string | null
+          finding_code?: string
+          id?: string
+          remediation?: string | null
+          resolution_notes?: string | null
+          responsible?: string | null
+          risk_level?: string
+          status?: string
+          technical_impact?: string | null
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          assessment_id?: string | null
+          asset_id?: string | null
+          business_impact?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string
+          description?: string | null
+          due_date?: string | null
+          evidence_ref?: string | null
+          finding_code?: string
+          id?: string
+          remediation?: string | null
+          resolution_notes?: string | null
+          responsible?: string | null
+          risk_level?: string
+          status?: string
+          technical_impact?: string | null
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cyber_findings_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "cyber_assessments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cyber_findings_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "cyber_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cyber_findings_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -375,6 +548,97 @@ export type Database = {
             columns: ["request_id"]
             isOneToOne: false
             referencedRelation: "cyber_service_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cyber_risks: {
+        Row: {
+          asset_id: string | null
+          created_at: string
+          created_by: string | null
+          customer_id: string
+          id: string
+          impact: number
+          likelihood: number
+          mitigation: string | null
+          owner: string | null
+          project_id: string | null
+          risk_code: string
+          risk_level: string | null
+          status: string
+          target_date: string | null
+          threat: string | null
+          title: string
+          treatment: string
+          updated_at: string
+          updated_by: string | null
+          vulnerability: string | null
+        }
+        Insert: {
+          asset_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_id: string
+          id?: string
+          impact?: number
+          likelihood?: number
+          mitigation?: string | null
+          owner?: string | null
+          project_id?: string | null
+          risk_code?: string
+          risk_level?: string | null
+          status?: string
+          target_date?: string | null
+          threat?: string | null
+          title: string
+          treatment?: string
+          updated_at?: string
+          updated_by?: string | null
+          vulnerability?: string | null
+        }
+        Update: {
+          asset_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string
+          id?: string
+          impact?: number
+          likelihood?: number
+          mitigation?: string | null
+          owner?: string | null
+          project_id?: string | null
+          risk_code?: string
+          risk_level?: string | null
+          status?: string
+          target_date?: string | null
+          threat?: string | null
+          title?: string
+          treatment?: string
+          updated_at?: string
+          updated_by?: string | null
+          vulnerability?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cyber_risks_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "cyber_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cyber_risks_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cyber_risks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "cyber_projects"
             referencedColumns: ["id"]
           },
         ]
