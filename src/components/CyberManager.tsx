@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { CyberRequestsBoard } from "@/components/CyberRequests";
 import { CyberProjectsBoard } from "@/components/CyberProjects";
+import { CyberSecurityRecords } from "@/components/CyberAssessments";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -47,15 +48,16 @@ export function CyberManager() {
   const d = q.data;
   const catName = (id: string | null) => d?.categories.find((c) => c.id === id)?.name ?? "—";
 
-  const [mode, setMode] = useState<"requests" | "projects" | "catalogue">("requests");
+  const [mode, setMode] = useState<"requests" | "projects" | "security" | "catalogue">("requests");
   const switcher = (
     <div className="flex gap-1 rounded-lg border border-border p-1 w-fit">
-      {(["requests", "projects", "catalogue"] as const).map((m) => (
+      {(["requests", "projects", "security", "catalogue"] as const).map((m) => (
         <button key={m} onClick={() => setMode(m)} className={`rounded-md px-3 py-1.5 text-sm capitalize ${mode === m ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>{m}</button>
       ))}
     </div>
   );
   if (mode === "projects") return <div className="space-y-4">{switcher}<CyberProjectsBoard /></div>;
+  if (mode === "security") return <div className="space-y-4">{switcher}<CyberSecurityRecords /></div>;
   if (mode === "requests") return <div className="space-y-4">{switcher}<CyberRequestsBoard /></div>;
 
   return (
