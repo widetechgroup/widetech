@@ -640,6 +640,168 @@ export type Database = {
           },
         ]
       }
+      cyber_report_access: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          report_id: string
+          user_id: string | null
+        }
+        Insert: {
+          action?: string
+          created_at?: string
+          id?: string
+          report_id: string
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          report_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cyber_report_access_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "cyber_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cyber_report_versions: {
+        Row: {
+          created_at: string
+          file_name: string | null
+          file_path: string
+          id: string
+          report_id: string
+          uploaded_by: string | null
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          file_name?: string | null
+          file_path: string
+          id?: string
+          report_id: string
+          uploaded_by?: string | null
+          version: number
+        }
+        Update: {
+          created_at?: string
+          file_name?: string | null
+          file_path?: string
+          id?: string
+          report_id?: string
+          uploaded_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cyber_report_versions_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "cyber_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cyber_reports: {
+        Row: {
+          classification: string
+          created_at: string
+          created_by: string | null
+          customer_id: string
+          file_name: string | null
+          file_path: string | null
+          id: string
+          prepared_by: string | null
+          project_id: string | null
+          report_code: string
+          report_date: string | null
+          report_type: string
+          reviewed_by: string | null
+          status: string
+          title: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          classification?: string
+          created_at?: string
+          created_by?: string | null
+          customer_id: string
+          file_name?: string | null
+          file_path?: string | null
+          id?: string
+          prepared_by?: string | null
+          project_id?: string | null
+          report_code?: string
+          report_date?: string | null
+          report_type?: string
+          reviewed_by?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          classification?: string
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string
+          file_name?: string | null
+          file_path?: string | null
+          id?: string
+          prepared_by?: string | null
+          project_id?: string | null
+          report_code?: string
+          report_date?: string | null
+          report_type?: string
+          reviewed_by?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cyber_reports_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cyber_reports_prepared_by_fkey"
+            columns: ["prepared_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cyber_reports_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "cyber_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cyber_reports_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cyber_request_events: {
         Row: {
           actor_id: string | null
@@ -1075,6 +1237,77 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "cyber_service_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cyber_trainings: {
+        Row: {
+          audience: string | null
+          created_at: string
+          created_by: string | null
+          customer_id: string | null
+          delivery_method: string
+          description: string | null
+          files: Json
+          id: string
+          location: string | null
+          materials: string | null
+          participants: number | null
+          status: string
+          title: string
+          trainer: string | null
+          training_date: string | null
+          training_type: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          audience?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string | null
+          delivery_method?: string
+          description?: string | null
+          files?: Json
+          id?: string
+          location?: string | null
+          materials?: string | null
+          participants?: number | null
+          status?: string
+          title: string
+          trainer?: string | null
+          training_date?: string | null
+          training_type?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          audience?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string | null
+          delivery_method?: string
+          description?: string | null
+          files?: Json
+          id?: string
+          location?: string | null
+          materials?: string | null
+          participants?: number | null
+          status?: string
+          title?: string
+          trainer?: string | null
+          training_date?: string | null
+          training_type?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cyber_trainings_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1835,6 +2068,7 @@ export type Database = {
         Returns: number
       }
       can_access_request: { Args: { _req: string }; Returns: boolean }
+      can_read_cyber_report: { Args: { _id: string }; Returns: boolean }
       effective_permissions: {
         Args: { _user_id: string }
         Returns: {
@@ -1855,6 +2089,10 @@ export type Database = {
         Returns: boolean
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      log_report_access: {
+        Args: { _action: string; _report: string }
+        Returns: undefined
+      }
       my_permissions: { Args: never; Returns: string[] }
       permission_scope: {
         Args: { _perm: string; _user_id: string }
