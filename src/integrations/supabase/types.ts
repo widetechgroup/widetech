@@ -420,6 +420,132 @@ export type Database = {
           },
         ]
       }
+      cyber_incident_events: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          from_status: string | null
+          id: string
+          incident_id: string
+          note: string | null
+          to_status: string
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          incident_id: string
+          note?: string | null
+          to_status: string
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          incident_id?: string
+          note?: string | null
+          to_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cyber_incident_events_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "cyber_incidents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cyber_incidents: {
+        Row: {
+          actions_taken: string | null
+          created_at: string
+          created_by: string | null
+          customer_id: string
+          description: string | null
+          detected_at: string | null
+          final_report: string | null
+          handler_id: string | null
+          id: string
+          incident_code: string
+          incident_type: string
+          lessons_learned: string | null
+          project_id: string | null
+          reported_at: string | null
+          severity: string
+          status: string
+          title: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          actions_taken?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_id: string
+          description?: string | null
+          detected_at?: string | null
+          final_report?: string | null
+          handler_id?: string | null
+          id?: string
+          incident_code?: string
+          incident_type?: string
+          lessons_learned?: string | null
+          project_id?: string | null
+          reported_at?: string | null
+          severity?: string
+          status?: string
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          actions_taken?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string
+          description?: string | null
+          detected_at?: string | null
+          final_report?: string | null
+          handler_id?: string | null
+          id?: string
+          incident_code?: string
+          incident_type?: string
+          lessons_learned?: string | null
+          project_id?: string | null
+          reported_at?: string | null
+          severity?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cyber_incidents_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cyber_incidents_handler_id_fkey"
+            columns: ["handler_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cyber_incidents_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "cyber_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cyber_projects: {
         Row: {
           actual_end: string | null
