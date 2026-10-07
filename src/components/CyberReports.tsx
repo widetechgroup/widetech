@@ -33,7 +33,7 @@ const asFiles = (v: unknown): FileRef[] => (Array.isArray(v) ? (v as FileRef[]).
 async function upload(folder: string, file: File): Promise<FileRef> {
   if (file.size > MAX) throw new Error("File is larger than 50 MB");
   const path = `${folder}/${crypto.randomUUID()}-${file.name.replace(/[^\w.-]+/g, "_")}`;
-  const { error } = await supabase.storage.from(BUCKET).upload(path, file, { contentType: file.type || undefined });
+  const { error } = await supabase.storage.from(BUCKET).upload(path, file, file.type ? { contentType: file.type } : {});
   if (error) throw error;
   return { path, name: file.name };
 }
