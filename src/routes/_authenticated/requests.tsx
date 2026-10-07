@@ -13,6 +13,7 @@ import { MyCyberRequests } from "@/components/CyberRequests";
 import { MyCyberProjects } from "@/components/CyberProjects";
 import { MyCyberFindings } from "@/components/CyberAssessments";
 import { MyCyberIncidents } from "@/components/CyberIncidents";
+import { MyCyberReports } from "@/components/CyberReports";
 
 export const Route = createFileRoute("/_authenticated/requests")({
   head: () => ({
@@ -206,6 +207,7 @@ function RequestsPage() {
       <MyCyberProjects />
       <MyCyberFindings />
       <MyCyberIncidents />
+      <MyCyberReports />
       <QuotesProjects />
 
       <RequestDialog open={requestOpen} onOpenChange={setRequestOpen} services={services} />
